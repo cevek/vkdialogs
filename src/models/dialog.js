@@ -1,46 +1,56 @@
 import {UserStore} from './user-store';
 import {EventBus} from '../lib/event-bus';
+
 export class DialogModel {
     eventBus = new EventBus();
     filterText;
     friendsStore;
+    allFriends = [];
     filteredUsers = [];
     selectedUsers = [];
 
     constructor(api) {
         this.api = api;
+        this.friendsStore = new UserStore(api);
     }
 
     setFilterText(text) {
         this.filterText = text;
+        let promise;
         this.filteredUsers = this.filterUsers();
-        this.eventBus.fire('selectedUsers');
-        return this.fetch();
+        this.eventBus.fire('filteredUsers', this.filteredUsers);
+        return text ? this.fetchFilter() : Promise.resolve();
+    }
+
+    fetchFilter() {
+        this.filteredUsers = [];
+        return this.friendsStore.fetch(this.filterText).then(users => {
+            this.filteredUsers = users;
+            this.eventBus.fire('filteredUsers', this.filteredUsers);
+        });
     }
 
     fetch() {
-        if (!this.filterText) {
-            return Promise.resolve();
-        }
-        this.friendsStore = new UserStore(this.api);
         return this.friendsStore.fetch().then(users => {
-            this.selectedUsers = this.selectedUsers.concat(users);
-            this.eventBus.fire('selectedUsers');
+            this.allFriends = users;
         });
     }
 
     filterUsers() {
-        return this.friendsStore.users.filter(user =>
+        if (!this.filterText) {
+            return this.allFriends.slice();
+        }
+        return this.allFriends.filter(user =>
             user.filterName(this.filterText));
     }
 
     toggleUser(user) {
-        const pos = this.users.indexOf(user);
+        const pos = this.selectedUsers.indexOf(user);
         if (pos > -1) {
-            this.users.splice(pos, 1);
+            this.selectedUsers.splice(pos, 1);
         }
         else {
-            this.users.push(user);
+            this.selectedUsers.push(user);
         }
     }
 }

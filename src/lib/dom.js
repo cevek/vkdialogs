@@ -1,4 +1,7 @@
 export function d(tag, attrs, ...children) {
+    if (tag instanceof Component) {
+        return prepareDom(tag);
+    }
     const tagSplit = tag.split('.');
     if (tagSplit.length > 1) {
         tag = tagSplit.shift();
@@ -9,6 +12,21 @@ export function d(tag, attrs, ...children) {
     const el = document.createElement(tag);
     for (const attr in attrs) {
         if (attrs.hasOwnProperty(attr)) {
+            if (attr === 'style') {
+                var style = attrs.style;
+                for (const prop in style) {
+                    if (style.hasOwnProperty(prop)) {
+                        el.style[prop] = style[prop];
+                    }
+                }
+            } else if (attr == 'events') {
+                var events = attrs.events;
+                for (const event in events) {
+                    if (events.hasOwnProperty(event)) {
+                        el.addEventListener(event, events[event]);
+                    }
+                }
+            }
             el.setAttribute(attr, attrs[attr]);
         }
     }
@@ -18,7 +36,7 @@ export function d(tag, attrs, ...children) {
     return el;
 }
 
-function prepareDom(child){
+function prepareDom(child) {
     if (child instanceof Component) {
         child = child.initHTML();
     }
@@ -56,8 +74,9 @@ export class Component {
 }
 
 
-export class List {
+export class List extends Component {
     constructor(props, sourceArray, keyFn, viewFn) {
+        super();
         this.props = props;
         this.keyFn = keyFn;
         this.viewFn = viewFn;
@@ -85,7 +104,8 @@ export class List {
         for (let i = 0; i < newItems.length; i++) {
             const newItem = newItems[i];
             const oldItem = this.items[j];
-            if (oldItem.key == newItem.key) {
+
+            if (oldItem && oldItem.key == newItem.key) {
                 j++;
                 before = oldItem.node.nextSibling;
             } else {

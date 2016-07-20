@@ -3,28 +3,30 @@ import {Component, List, d} from './lib/dom';
 export class DialogView extends Component {
     model;
     friendListCmp;
+    filterInputNode;
     filterClearNode;
     filterLoaderNode;
     actionsNode;
     saveButtonNode;
 
     constructor(model) {
+        super();
         this.model = model;
-        this.model.eventBus.subscribe('selectedUsers', this.onSelectedUsersChange);
+        this.model.eventBus.subscribe('filteredUsers', this.onFilteredUsersChange);
     }
 
     onDestroy() {
-        this.model.eventBus.unsubscribe('selectedUsers', this.onSelectedUsersChange);
+        this.model.eventBus.unsubscribe('filteredUsers', this.onFilteredUsersChange);
     }
 
-    onSelectedUsersChange = selectedUsers => {
+    onFilteredUsersChange = filteredUsers => {
         if (this.mount) {
-            if (selectedUsers.length > 1) {
+            if (filteredUsers.length > 1) {
                 this.actionsNode.classList.remove('hidden');
             } else {
                 this.actionsNode.classList.add('hidden');
             }
-            this.friendListCmp.update(selectedUsers);
+            this.friendListCmp.update(filteredUsers);
         }
     };
 
@@ -43,6 +45,7 @@ export class DialogView extends Component {
 
     onFilterClear = () => {
         this.model.setFilterText('');
+        this.filterInputNode.value = '';
     };
 
     onSave = () => {
@@ -69,7 +72,7 @@ export class DialogView extends Component {
                     d('span.close', {events: {click: this.onClose}}, '×')
                 ),
                 d('div.dialog-filter', null,
-                    d('input.dialog-input', {events: {input: this.onFilterInput}}),
+                    this.filterInputNode = d('input.dialog-input', {events: {input: this.onFilterInput}}),
                     this.filterClearNode = d('span.close.hidden', {events: {click: this.onFilterClear}}, '×'),
                     this.filterLoaderNode = d('span.loader.hidden')
                 ),
@@ -84,6 +87,7 @@ export class DialogView extends Component {
 
 class DialogFriend extends Component {
     constructor(model, user) {
+        super();
         this.model = model;
         this.user = user;
     }

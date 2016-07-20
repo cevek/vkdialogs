@@ -17,9 +17,9 @@ export class EventBus {
         }
     }
 
-    fire(event) {
+    fire(event, value) {
         if (this.subscribers) {
-            this.subscribers.filter(sb => sb.event == event).forEach(sb => sb.callback());
+            this.subscribers.filter(sb => sb.event == event).forEach(sb => sb.callback(value));
         }
     }
 
