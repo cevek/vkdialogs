@@ -6,35 +6,44 @@ export function d(tag, attrs, ...children) {
     if (tagSplit.length > 1) {
         tag = tagSplit.shift();
         if (!attrs) {
-            attrs = {class: tagSplit.join(' ')};
+            attrs = {};
         }
+        attrs.class = tagSplit.join(' ');
     }
-    const el = document.createElement(tag);
+    const node = document.createElement(tag);
+    prepareAttrs(attrs, node);
+    for (let i = 0; i < children.length; i++) {
+        node.appendChild(prepareDom(children[i]));
+    }
+    return node;
+}
+
+function prepareAttrs(attrs, node) {
     for (const attr in attrs) {
         if (attrs.hasOwnProperty(attr)) {
             if (attr === 'style') {
                 var style = attrs.style;
                 for (const prop in style) {
                     if (style.hasOwnProperty(prop)) {
-                        el.style[prop] = style[prop];
+                        node.style[prop] = style[prop];
                     }
                 }
             } else if (attr == 'events') {
                 var events = attrs.events;
                 for (const event in events) {
                     if (events.hasOwnProperty(event)) {
-                        el.addEventListener(event, events[event]);
+                        node.addEventListener(event, events[event]);
                     }
                 }
+            } else if (attr == 'checked') {
+                node[attr] = attrs[attr];
+            } else {
+                node.setAttribute(attr, attrs[attr]);
             }
-            el.setAttribute(attr, attrs[attr]);
         }
     }
-    for (let i = 0; i < children.length; i++) {
-        el.appendChild(prepareDom(children[i]));
-    }
-    return el;
 }
+
 
 function prepareDom(child) {
     if (child instanceof Component) {
@@ -51,15 +60,8 @@ export class Component {
     mount = false;
 
     destroy() {
-        for (const name in this.components) {
-            if (this.components.hasOwnProperty(name)) {
-                const component = this.components[name];
-                if (typeof component.onDestroy == 'function') {
-                    component.onDestroy();
-                }
-                component.destroy();
-            }
-        }
+        this.onDestroy();
+        this.rootNode.parentNode.removeChild(this.rootNode);
     }
 
     initHTML() {
@@ -72,7 +74,6 @@ export class Component {
         return null;
     }
 }
-
 
 export class List extends Component {
     constructor(props, sourceArray, keyFn, viewFn) {
@@ -97,7 +98,7 @@ export class List extends Component {
         const newKeyMap = {};
         const newItems = this.makeItems(newArray, newKeyMap);
         this.items.filter(item => !newItems.find(newItem => newItem.key == item.key)).forEach(item => {
-            item.node.parent.removeChild(item.node.rootNode);
+            item.node.parentNode.removeChild(item.node);
         });
         let j = 0;
         let before = this.items.length ? this.items[0].node : null;
@@ -107,6 +108,7 @@ export class List extends Component {
 
             if (oldItem && oldItem.key == newItem.key) {
                 j++;
+                newItem.node = oldItem.node;
                 before = oldItem.node.nextSibling;
             } else {
                 var node = prepareDom(this.viewFn(newItem.item, i));
@@ -114,9 +116,14 @@ export class List extends Component {
                 this.rootNode.insertBefore(node, before);
             }
         }
+        this.items = newItems;
     }
 
     render() {
-        return this.rootNode = d('div', this.props, ...this.items.map(item => item.view));
+        return this.rootNode = d('div', this.props, ...this.items.map((item, i) => {
+            var node = prepareDom(this.viewFn(item.item, i));
+            item.node = node;
+            return node;
+        }))
     }
 }

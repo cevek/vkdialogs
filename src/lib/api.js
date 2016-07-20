@@ -2,7 +2,10 @@ var vk = {
     api: {
         get: {
             friends: function (method, params, callback) {
-                setTimeout(()=>callback(null, [{id: 1, firstName: 'Миша', lastName: 'Клеин'}]), 1000);
+                setTimeout(()=>callback(null, [
+                    {id: 1, firstName: 'Миша', lastName: 'Клеин'},
+                    {id: 2, firstName: 'Леша', lastName: 'Иванов'},
+                ]), 1000);
             }
         }
     }
