@@ -48,13 +48,14 @@ class FriendsStore extends BaseModel {
 
     fetch() {
         return this.api.getAllFriends().then(arr => {
-            this.users = arr.map(json => new User(json))
+            return this.users = arr.map(json => new User(json))
         })
     }
 }
 
 
 class DialogModel {
+    eventBus = new EventBus();
     filterText;
     friendsStore;
     filteredUsers = [];
@@ -67,11 +68,19 @@ class DialogModel {
     setFilterText(text) {
         this.filterText = text;
         this.filteredUsers = this.filterUsers();
+        this.eventBus.fire('selectedUsers');
+        return this.fetch();
     }
 
     fetch() {
-        this.friendsStore = new FriendsStore();
-        return this.friendsStore.fetch();
+        if (!this.filterText) {
+            return Promise.resolve();
+        }
+        this.friendsStore = new FriendsStore(this.api);
+        return this.friendsStore.fetch().then(users => {
+            this.selectedUsers = this.selectedUsers.concat(users);
+            this.eventBus.fire('selectedUsers');
+        });
     }
 
     filterUsers() {
@@ -88,132 +97,109 @@ class DialogModel {
             this.users.push(user);
         }
     }
-
-
 }
 
 class DialogView extends Component {
     constructor(dialogModel) {
         this.dialogModel = dialogModel;
+        this.dialogModel.eventBus.subscribe('selectedUsers', this.onSelectedUsersChange);
     }
 
-    components = {
-        header: new DialogHeader(this.dialogModel),
-        filter: new DialogFilter(this.dialogModel),
-        friends: this.dialogModel.selectedUsers.map(user =>
-            new DialogFriend(this.dialogModel, user)),
-        actions: new DialogActions(this.dialogModel)
-    };
-
-    render() {
-        return (
-            d('div.dialog-view', null,
-                this.components.header,
-                this.components.filter,
-                this.components.friends,
-                this.components.actions
-            )
-        );
-    }
-}
-
-class DialogHeader extends Component {
-    constructor(dialogModel) {
-        this.dialogModel = dialogModel;
-    }
-
-    onClose = () => {
-        this.dialogModel.close();
-    };
-
-    render() {
-        return (
-            d('div.dialog-header', null,
-                'Создание беседы',
-                d('span.close', {events: {click: this.onClose}}, '×')
-            )
-        );
-    }
-}
-
-class DialogFilter extends Component {
-
-    closeEl;
-    loaderEl;
-
-    constructor(dialogModel) {
-        this.dialogModel = dialogModel;
-        this.subscribe(dialogModel, 'filterLoadingState', this.onLoadingStateChange);
-    }
-
-    onLoadingStateChange = (state) => {
-        if (this.mount) {
-            if (state) {
-                this.closeEl.classList.remove('hidden');
-                this.loaderEl.classList.add('hidden');
-            } else {
-                this.closeEl.classList.add('hidden');
-                this.loaderEl.classList.remove('hidden');
-            }
-        }
-    };
-
-
-    onInput = (event) => {
-        this.dialogModel.setFilterText(event.target.value);
-    };
-
-    onClear = () => {
-        this.dialogModel.setFilterText('');
-    };
-
-    render() {
-        return (
-            d('div.dialog-filter', null,
-                d('input.dialog-input', {events: {input: this.onInput}}),
-                d('span.close.hidden', {events: {click: this.onClear}}, '×'),
-                d('span.loader.hidden')
-            )
-        );
-    }
-}
-
-class DialogActions extends Component {
-    rootEl;
-    buttonEl;
-
-    constructor(dialogModel) {
-        this.dialogModel = dialogModel;
-        this.subscribe(dialogModel, 'selectedUsers', this.onSelectedUsersChange);
+    onDestroy() {
+        this.dialogModel.eventBus.unsubscribe('selectedUsers', this.onSelectedUsersChange);
     }
 
     onSelectedUsersChange = selectedUsers => {
         if (this.mount) {
             if (selectedUsers.length > 1) {
-                this.rootEl.classList.remove('hidden');
+                this.actionsEl.classList.remove('hidden');
             } else {
-                this.rootEl.classList.add('hidden');
+                this.actionsEl.classList.add('hidden');
             }
+            this.diffUsers(selectedUsers);
         }
     };
 
-    onSubmit() {
-        this.buttonEl.setAttribute('disabled', '');
-        this.buttonEl.classList.add('saving');
-        this.dialogModel.save().then(()=> {
-            this.buttonEl.removeAttribute('disabled');
-            this.buttonEl.classList.remove('saving');
-        })
+    diffUsers(selectedUsers) {
+        const selectedUsersIds = selectedUsers.map(user => user.id);
+        this.friendsEl.filter(friendComponent => selectedUsersIds.indexOf(friendComponent.user.id) === -1)
+            .forEach(friendComponent => {
+                friendComponent.destroy();
+            });
+
+
+        let j = 0;
+        let beforeNode = this.friendsEl.length > 0 ? this.friendsEl[0].rootNode : null;
+        for (let i = 0; i < selectedUsers.length; i++) {
+            const user = selectedUsers[i];
+            const friendComponent = this.friendsEl[j];
+            if (this.friendsEl[j].user.id == user.id) {
+                beforeNode = friendComponent.rootNode.nextSibling;
+                j++;
+            } else {
+                const friendComponent = new DialogFriend(this.dialogModel, user);
+                this.friendsEl.splice(j, 0, friendComponent);
+                rootNode.insertBefore(friendComponent.render(), beforeNode);
+            }
+        }
+        selectedUsers.filter(user => this.friendsEl.map(friendComponent => friendComponent.user))
     }
+
+
+    onClose = () => {
+        this.destroy();
+    };
+
+    onFilterInput = (event) => {
+        this.filterClearEl.classList.add('hidden');
+        this.filterLoaderEl.classList.remove('hidden');
+        this.dialogModel.setFilterText(event.target.value).then(()=> {
+            this.filterClearEl.classList.remove('hidden');
+            this.filterLoaderEl.classList.add('hidden');
+        })
+    };
+
+    onUserToggleSelect = () => {
+        this.dialogModel.selectedUsers.toggleUser(this.user);
+    };
+
+    onFilterClear = () => {
+        this.dialogModel.setFilterText('');
+    };
+
+    onSave = () => {
+        this.saveButtonEl.setAttribute('disabled', '');
+        this.saveButtonEl.classList.add('saving');
+        this.dialogModel.save().then(()=> {
+            this.saveButtonEl.removeAttribute('disabled');
+            this.saveButtonEl.classList.remove('saving');
+            this.destroy();
+        })
+    };
 
     render() {
         return (
-            this.rootEl = d('div.actions.hidden', null,
-                this.buttonEl = d('button', {events: {change: this.onSubmit}}, 'Создать беседу'),
+            d('div.dialog-view', null,
+                d('div.dialog-header', null,
+                    'Создание беседы',
+                    d('span.close', {events: {click: this.onClose}}, '×')
+                ),
+                d('div.dialog-filter', null,
+                    d('input.dialog-input', {events: {input: this.onFilterInput}}),
+                    this.filterClearEl = d('span.close.hidden', {events: {click: this.onFilterClear}}, '×'),
+                    this.filterLoaderEl = d('span.loader.hidden')
+                ),
+                this.friendsEl = this.dialogModel.selectedUsers.map(user =>
+                    new DialogFriend(this.dialogModel, user)
+                ),
+                this.actionsEl = d('div.actions.hidden', null,
+                    this.saveButtonEl = d('button', {events: {change: this.onSave}}, 'Создать беседу'),
+                )
             )
         );
     }
 }
+
 
 class DialogFriend extends Component {
     constructor(dialogModel, user) {
