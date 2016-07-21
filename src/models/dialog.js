@@ -1,18 +1,16 @@
-import {UserStore} from './user-store';
 import {EventBus} from '../lib/event-bus';
 import {User} from "./user";
+import {uniqueArray} from '../lib/utils';
 
 export class DialogModel {
     eventBus = new EventBus();
     filterText;
-    friendsStore;
     allFriends = [];
     filteredUsers = [];
     selectedUsers = [];
 
     constructor(api) {
         this.api = api;
-        this.friendsStore = new UserStore(api);
     }
 
     setFilterText(text) {
@@ -26,19 +24,20 @@ export class DialogModel {
     _fetchFilterVersion = 0;
     fetchFilter() {
         var version = ++this._fetchFilterVersion;
-        this.filteredUsers = [];
         return this.api.searchFriends(this.filterText).then(users => {
             users = users.map(json => new User(json));
             if (this._fetchFilterVersion == version) {
-                this.filteredUsers = this.allFriends.filter(user => users.some(u => u.id == user.id));
+                const usersFromServer = this.allFriends.filter(user => users.some(u => u.id == user.id));
+                this.filteredUsers = this.filteredUsers.concat(usersFromServer);
+                this.filteredUsers = uniqueArray(this.filteredUsers);
                 this.eventBus.fire('filteredUsers', this.filteredUsers);
             }
         });
     }
 
     fetch() {
-        return this.friendsStore.fetch().then(users => {
-            this.allFriends = users;
+        return this.api.getAllFriends().then(usersJson => {
+            this.allFriends = usersJson.map(json => new User(json));
             this.filteredUsers = this.allFriends.slice();
         });
     }
