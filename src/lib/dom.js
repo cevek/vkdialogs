@@ -97,14 +97,20 @@ export class List extends Component {
     update(newArray) {
         const newKeyMap = {};
         const newItems = this.makeItems(newArray, newKeyMap);
-        this.items.filter(item => !newItems.find(newItem => newItem.key == item.key)).forEach(item => {
-            item.node.parentNode.removeChild(item.node);
-        });
+        const oldItems = [];
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            if (!newItems.find(newItem => newItem.key == item.key)) {
+                item.node.parentNode.removeChild(item.node);
+            } else {
+                oldItems.push(item);
+            }
+        }
         let j = 0;
-        let before = this.items.length ? this.items[0].node : null;
+        let before = oldItems.length ? oldItems[0].node : null;
         for (let i = 0; i < newItems.length; i++) {
             const newItem = newItems[i];
-            const oldItem = this.items[j];
+            const oldItem = oldItems[j];
 
             if (oldItem && oldItem.key == newItem.key) {
                 j++;

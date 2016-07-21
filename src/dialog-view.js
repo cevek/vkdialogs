@@ -110,7 +110,7 @@ class DialogFriend extends Component {
     render() {
         return (
             d('div.friend', null,
-                d('div.avatar', {style: {backgroundImage: ''}}),
+                d('div.photo', {style: {backgroundImage: `url(${this.user.photo})`}}),
                 d('div.name', null, this.user.getFullName()),
                 d('input.checkbox', {
                     type: 'checkbox',
