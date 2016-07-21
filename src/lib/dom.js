@@ -1,3 +1,10 @@
+/**
+ * Create dom element
+ * @param tag {string | Component}
+ * @param attrs {Object}
+ * @param children {string | Node | Component[]}
+ * @return {Element}
+ */
 export function d(tag, attrs, ...children) {
     if (tag instanceof Component) {
         return prepareDom(tag);
@@ -44,7 +51,6 @@ function prepareAttrs(attrs, node) {
     }
 }
 
-
 function prepareDom(child) {
     if (child instanceof Component) {
         child = child.initHTML();
@@ -55,12 +61,17 @@ function prepareDom(child) {
     return child;
 }
 
+/**
+ * Base Model for view components
+ */
 export class Component {
     rootNode;
     mount = false;
 
     destroy() {
-        this.onDestroy();
+        if (this.onDestroy) {
+            this.onDestroy();
+        }
         this.rootNode.parentNode.removeChild(this.rootNode);
     }
 
@@ -75,19 +86,33 @@ export class Component {
     }
 }
 
+/**
+ * Component to render lists with diff update
+ * It maps array items with generated dom elements
+ */
 export class List extends Component {
+    /**
+     * @param.props {Object} - props to root elements
+     * @param.array {T[]} - source array of any data
+     * @param.key {Function} (item, i)=>string - Callback to take unique id from the item
+     * @param.view {Function} (item, i)=>Node|Component - Callback to take render view
+     */
     constructor(params) {
         super();
         this.params = params;
         this.keyMap = {};
-        this.items = this.makeItems(params.array, this.keyMap);
+        this.items = this._makeItems(params.array, this.keyMap);
     }
 
+    /**
+     * Get current items
+     * @return {{key: string, node: Node, view: Component, item: T}[]}
+     */
     getItems() {
         return this.items;
     }
 
-    makeItems(sourceArray, keyMap) {
+    _makeItems(sourceArray, keyMap) {
         return sourceArray.map((item, i) => {
             const key = this.params.key(item, i);
             keyMap[key] = item;
@@ -95,9 +120,13 @@ export class List extends Component {
         });
     }
 
+    /**
+     * Diff new array with old array and render the difference
+     * @param newArray {T[]} - new array to apply to the list
+     */
     update(newArray) {
         const newKeyMap = {};
-        const newItems = this.makeItems(newArray, newKeyMap);
+        const newItems = this._makeItems(newArray, newKeyMap);
         let j = 0;
         let before = this.items.length ? this.items[0].node : null;
         const usedOldKeys = {};

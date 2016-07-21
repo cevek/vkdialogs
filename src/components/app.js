@@ -1,6 +1,6 @@
 import {Component} from "../lib/dom";
 import {d} from "../lib/dom";
-import {CreateDialogViewModel} from "../models/dialog";
+import {DialogViewModel} from "../models/dialog";
 import {DialogView} from "./dialog";
 
 export class App extends Component {
@@ -12,7 +12,7 @@ export class App extends Component {
     }
 
     render() {
-        const model = new CreateDialogViewModel(this.api);
+        const model = new DialogViewModel(this.api);
         this.api.auth().then(data => {
             model.fetchUsers().then(()=> {
 

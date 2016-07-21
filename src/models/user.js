@@ -13,7 +13,7 @@ export class User {
         this.fullName = this.firstName + ' ' + this.lastName;
     }
 
-    filterName(str) {
+    hasText(str) {
         return hasText(this.fullName, str);
     }
 }

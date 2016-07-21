@@ -1,7 +1,10 @@
+/**
+ * Return array with unique elements
+ * @param array
+ */
 export function uniqueArray(array) {
     return array.filter((item, index, self) => self.indexOf(item) === index)
 }
-
 
 const translitMap = {
     lat1: ['yo', 'zh', 'kh', 'ts', 'ch', 'sch', 'shch', 'sh', 'eh', 'yu', 'ya', 'YO', 'ZH', 'KH', 'TS', 'CH', 'SCH', 'SHCH', 'SH', 'EH', 'YU', 'YA', "'"],
@@ -20,27 +23,46 @@ function translit(text, from, to) {
     return text;
 }
 
+/**
+ * Translit privet => привет
+ */
 export function translitToCyr(text) {
     text = translit(text, translitMap.lat1, translitMap.cyr1);
     text = translit(text, translitMap.lat2, translitMap.cyr2);
     return text;
 }
+/**
+ * Translit привет => privet
+ */
 export function translitToLat(text) {
     text = translit(text, translitMap.cyr1, translitMap.lat1);
     text = translit(text, translitMap.cyr2, translitMap.lat2);
     return text;
 }
 
+/**
+ * Translit ghbdtn => привет
+ */
 export function traslitKeyboardToCyr(text) {
     return translit(text, translitMap.latKeys, translitMap.cyrKeys);
 }
+
+/**
+ * Translit зкшмуе => privet
+ */
 export function traslitKeyboardToLat(text) {
     return translit(text, translitMap.cyrKeys, translitMap.latKeys);
 }
 
-// todo: too heavy load, need to cache translits
+/**
+ * Check that sub text contains in source with different types of enter
+ * @param source {string}
+ * @param sub {string}
+ * @return {boolean}
+ */
 export function hasText(source, sub) {
     source = source.toLocaleLowerCase();
+    // todo: too heavy load, need to cache translits
     const sourceVersions = [
         source,
         translitToCyr(source),

@@ -5,6 +5,7 @@ export class Api {
     }
 
     auth() {
+        // todo: opening new window needs same event loop stack after click, promises broke that
         return this.getLoginStatus().then(session => {
             if (!session) {
                 return new Promise((resolve, reject)=> {
