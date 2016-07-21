@@ -5,6 +5,8 @@
 
 Использованные технологии: ES6, Babel, Webpack, LESS, Autoprefixer.
 
+[Демо](https://cevek.github.io/vkdialogs/)
+
 
 ## Установка и запуск
 ```npm install```
