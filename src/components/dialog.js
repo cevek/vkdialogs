@@ -1,4 +1,4 @@
-import {Component, List, d} from './lib/dom';
+import {Component, List, d} from '../lib/dom';
 import './dialog.less';
 
 export class DialogView extends Component {

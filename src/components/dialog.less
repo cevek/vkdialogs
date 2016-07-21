@@ -1,55 +1,4 @@
-html, body {
-  height: 100%;
-  padding: 0;
-  margin: 0;
-}
-
-body {
-  background: #edeef0;
-}
-
-body, input, button, select, textarea {
-  font-family: Helvetica Neue, sans-serif;
-  font-size: 13px;
-  outline: none;
-}
-
-.hidden {
-  display: none !important;
-}
-
-@bg: #fff;
-@lightBg: #fafbfc;
-
-@btnColor: #5e81a8;
-@xColor: #94a3bb;
-@borderColor: #e7e8ec;
-@linkColor: #2a5885;
-
-@tokenColor: #55677d;
-@tokenBgColor: #dae2ea;
-
-
-a {
-  color: @linkColor;
-}
-
-.btn {
-  padding: 7px 16px 8px;
-  cursor: pointer;
-  white-space: nowrap;
-  outline: none;
-  text-align: center;
-  background-color: @btnColor;
-  color: @bg;
-  border: 0;
-  border-radius: 2px;
-  box-sizing: border-box;
-
-  &[disabled] {
-    background: lighten(@btnColor, 20%);
-  }
-}
+@import "../styles/variables";
 
 .dialog {
   background: white;
@@ -115,11 +64,11 @@ a {
   }
 
   &__spinner {
-    background: url(images/spinner.gif) no-repeat center;
+    background: url(../images/spinner.gif) no-repeat center;
   }
 
   &__friend-list {
-    overflow: scroll;
+    overflow-y: scroll;
     flex: 1;
   }
 
@@ -213,7 +162,7 @@ a {
 
 .checkbox {
   display: inline-block;
-  background: url(images/checkbox.png) no-repeat 0 -26px;;
+  background: url(../images/checkbox.png) no-repeat 0 -26px;;
   width: 22px;
   height: 22px;
   background-size: 22px 48px;

@@ -1,8 +1,9 @@
 import 'babel-polyfill';
 import {Api} from './lib/api';
 import {d} from './lib/dom';
-import {DialogView} from './dialog-view';
+import {DialogView} from './components/dialog';
 import {DialogModel} from './models/dialog';
+import './styles/main.less';
 
 const config = {
     api: {
