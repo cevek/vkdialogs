@@ -1,4 +1,4 @@
-import {translator, traslitLatKeys, hasText} from '../lib/utils';
+import {hasText} from '../lib/utils';
 
 export class User {
     id;
