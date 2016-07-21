@@ -44,6 +44,15 @@ export class DialogModel {
         });
     }
 
+    save() {
+        return new Promise((resolve, reject)=> {
+            setTimeout(()=> {
+                alert('Ура! Беседа создана!');
+                resolve();
+            }, 1000);
+        });
+    }
+
     filterUsers() {
         if (!this.filterText) {
             return this.allFriends.slice();

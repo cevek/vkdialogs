@@ -1,7 +1,7 @@
 export class Api {
-    constructor(appId) {
-        this.appId = appId;
-        VK.init({apiId: appId});
+    constructor(config) {
+        this.config = config;
+        VK.init({apiId: config.appId});
     }
 
     auth() {
@@ -10,7 +10,7 @@ export class Api {
                 return new Promise((resolve, reject)=> {
                     VK.Auth.login(response => {
                         response.session ? resolve(response.session) : reject(response)
-                    }, 2);
+                    }, this.config.scope);
                 });
             }
             return session;
@@ -31,7 +31,6 @@ export class Api {
         return new Promise((resolve, reject) => {
             setTimeout(()=> {
                 VK.api(method, params, (r) => {
-                    console.log(r);
                     r.response ? resolve(r.response) : reject(r)
                 })
             }, 1000);
@@ -43,6 +42,6 @@ export class Api {
     }
 
     getAllFriends() {
-        return this.call('friends.get', {fields: 'photo_100', order: 'hints', limit: 100})
+        return this.call('friends.get', {fields: 'photo_100', order: 'hints'})
     }
 }
