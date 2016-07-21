@@ -1,5 +1,6 @@
 import {UserStore} from './user-store';
 import {EventBus} from '../lib/event-bus';
+import {User} from "./user";
 
 export class DialogModel {
     eventBus = new EventBus();
@@ -26,7 +27,8 @@ export class DialogModel {
     fetchFilter() {
         var version = ++this._fetchFilterVersion;
         this.filteredUsers = [];
-        return this.friendsStore.fetch(this.filterText).then(users => {
+        return this.api.searchFriends(this.filterText).then(users => {
+            users = users.map(json => new User(json));
             if (this._fetchFilterVersion == version) {
                 this.filteredUsers = this.allFriends.filter(user => users.some(u => u.id == user.id));
                 this.eventBus.fire('filteredUsers', this.filteredUsers);

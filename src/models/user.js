@@ -6,9 +6,10 @@ export class User {
     lastName;
 
     constructor(json) {
-        this.id = json.id;
-        this.firstName = json.firstName;
-        this.lastName = json.lastName;
+        this.id = json.uid;
+        this.firstName = json.first_name;
+        this.lastName = json.last_name;
+        this.photo = json.photo_100;
     }
 
     getFullName() {

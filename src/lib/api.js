@@ -1,32 +1,46 @@
-var vk = {
-    api: {
-        get: {
-            friends: function (method, params, callback) {
-                setTimeout(()=>callback(null, [
-                    {id: 1, firstName: 'Миша', lastName: 'Клеин'},
-                    {id: 2, firstName: 'Леша', lastName: 'Иванов'},
-                ]), 1000);
-            }
-        }
-    }
-};
-
 export class Api {
-    constructor(apiConfig) {
-        this.apiConfig = apiConfig;
+    constructor(appId) {
+        this.appId = appId;
+        VK.init({apiId: appId});
     }
 
-    fetch(method, params) {
-        return new Promise((resolve, reject) =>
-            vk.api.get.friends(method, params, (err, result) =>
-                err ? reject(err) : resolve(result)));
+    auth() {
+        return this.getLoginStatus().then(session => {
+            if (!session) {
+                return new Promise((resolve, reject)=> {
+                    VK.Auth.login(response => {
+                        response.session ? resolve(response.session) : reject(response)
+                    }, 2);
+                });
+            }
+            return session;
+        }).then(session => {
+            this.session = session;
+            return session;
+        });
     }
 
-    friends(nickname) {
-        this.fetch('friends', {nickname});
+    getLoginStatus() {
+        return new Promise((resolve, reject)=> {
+            VK.Auth.getLoginStatus(response => resolve(response.session));
+        });
+    }
+
+
+    call(method, params) {
+        return new Promise((resolve, reject) => {
+            VK.api(method, params, (r) => {
+                console.log(r);
+                r.response ? resolve(r.response) : reject(r)
+            })
+        });
+    }
+
+    searchFriends(q) {
+        return this.call('friends.search', {q, fields: 'photo_100', count: 100});
     }
 
     getAllFriends() {
-        return this.fetch();
+        return this.call('friends.get', {fields: 'photo_100', order: 'hints'})
     }
 }
