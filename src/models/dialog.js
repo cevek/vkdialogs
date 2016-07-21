@@ -1,5 +1,5 @@
 import {EventBus} from '../lib/event-bus';
-import {User} from "./user";
+import {User} from './user';
 import {uniqueArray} from '../lib/utils';
 
 export class DialogModel {
@@ -22,6 +22,7 @@ export class DialogModel {
 
     // hack, because we cannot abort old promise
     _fetchFilterVersion = 0;
+
     fetchFilter() {
         var version = ++this._fetchFilterVersion;
         return this.api.searchFriends(this.filterText).then(users => {
@@ -32,12 +33,13 @@ export class DialogModel {
                 this.filteredUsers = uniqueArray(this.filteredUsers);
                 this.eventBus.fire('filteredUsers', this.filteredUsers);
             }
-        });
+        }).catch(err=>console.error(err)); // too many requests error
     }
 
     fetch() {
         return this.api.getAllFriends().then(usersJson => {
             this.allFriends = usersJson.map(json => new User(json));
+            this.allFriends.sort((a, b) => a.fullName < b.fullName ? -1 : 1);
             this.filteredUsers = this.allFriends.slice();
         });
     }

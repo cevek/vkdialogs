@@ -76,21 +76,22 @@ export class Component {
 }
 
 export class List extends Component {
-    constructor(props, sourceArray, keyFn, viewFn) {
+    constructor(params) {
         super();
-        this.props = props;
-        this.keyFn = keyFn;
-        this.viewFn = viewFn;
-
+        this.params = params;
         this.keyMap = {};
-        this.items = this.makeItems(sourceArray, this.keyMap);
+        this.items = this.makeItems(params.array, this.keyMap);
+    }
+
+    getItems() {
+        return this.items;
     }
 
     makeItems(sourceArray, keyMap) {
         return sourceArray.map((item, i) => {
-            var key = this.keyFn(item, i);
+            var key = this.params.key(item, i);
             keyMap[key] = item;
-            return {key, item, node: null};
+            return {key, item, node: null, view: null};
         });
     }
 
@@ -107,11 +108,14 @@ export class List extends Component {
             if (oldItem && oldItem.key == newItem.key) {
                 j++;
                 newItem.node = oldItem.node;
+                newItem.view = oldItem.view;
                 before = oldItem.node.nextSibling;
                 usedOldKeys[oldItem.key] = true;
             } else {
-                var node = prepareDom(this.viewFn(newItem.item, i));
+                var view = this.params.view(newItem.item, i);
+                var node = prepareDom(view);
                 newItem.node = node;
+                newItem.view = view;
                 this.rootNode.insertBefore(node, before);
             }
         }
@@ -126,9 +130,11 @@ export class List extends Component {
     }
 
     render() {
-        return this.rootNode = d('div', this.props, ...this.items.map((item, i) => {
-            var node = prepareDom(this.viewFn(item.item, i));
+        return this.rootNode = d('div', this.params.props, ...this.items.map((item, i) => {
+            var view = this.params.view(item.item, i);
+            var node = prepareDom(view);
             item.node = node;
+            item.view = view;
             return node;
         }))
     }

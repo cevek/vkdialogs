@@ -3,6 +3,7 @@ import './dialog.less';
 
 export class DialogView extends Component {
     model;
+    selectedUsersCmp;
     friendListCmp;
     filterInputNode;
     filterClearNode;
@@ -35,6 +36,8 @@ export class DialogView extends Component {
             } else {
                 this.actionsNode.classList.add('hidden');
             }
+            this.selectedUsersCmp.update(selectedUsers);
+            this.friendListCmp.getItems().forEach(item => item.view.update());
         }
     };
 
@@ -71,18 +74,28 @@ export class DialogView extends Component {
     };
 
     render() {
-        this.friendListCmp = new List({class: 'friend-list'},
-            this.model.filteredUsers,
-            user => user.id,
-            user => new DialogFriend(this.model, user));
+        this.friendListCmp = new List({
+            props: {class: 'friend-list'},
+            array: this.model.filteredUsers,
+            key: user => user.id,
+            view: user => new DialogFriend(this.model, user)
+        });
+
+        this.selectedUsersCmp = new List({
+            props: {class: 'selected-users'},
+            array: this.model.selectedUsers,
+            key: user => user.id,
+            view: user => new DialogUserItem(this.model, user)
+        });
 
         return (
             d('div.dialog-view', null,
                 d('div.dialog-header', null,
                     'Создание беседы',
-                    d('span.close', {events: {click: this.onClose}}, '×')
+                    d('span.close', {title: "Закрыть", events: {click: this.onClose}}, '×')
                 ),
                 d('div.dialog-filter', null,
+                    this.selectedUsersCmp,
                     this.filterInputNode = d('input.dialog-input', {type: 'text', events: {input: this.onFilterInput}}),
                     this.filterLoaderNode = d('span.spinner.hidden'),
                     this.filterClearNode = d('span.clear.hidden', {events: {click: this.onFilterClear}}, '×')
@@ -97,6 +110,8 @@ export class DialogView extends Component {
 }
 
 class DialogFriend extends Component {
+    checkboxNode;
+
     constructor(model, user) {
         super();
         this.model = model;
@@ -107,16 +122,41 @@ class DialogFriend extends Component {
         this.model.toggleUser(this.user);
     };
 
+    update() {
+        this.checkboxNode.checked = this.model.userIsSelected(this.user);
+    }
+
     render() {
         return (
             d('div.friend', null,
                 d('div.photo', {style: {backgroundImage: `url(${this.user.photo})`}}),
-                d('div.name', null, this.user.getFullName()),
-                d('input.checkbox', {
+                d('div.name', null, this.user.fullName),
+                this.checkboxNode = d('input.checkbox', {
                     type: 'checkbox',
                     checked: this.model.userIsSelected(this.user),
                     events: {change: this.onToggleSelect}
-                }, this.user.getFullName()),
+                }),
+            )
+        );
+    }
+}
+
+class DialogUserItem extends Component {
+    constructor(model, user) {
+        super();
+        this.model = model;
+        this.user = user;
+    }
+
+    onRemove = () => {
+        this.model.toggleUser(this.user);
+    };
+
+    render() {
+        return (
+            d('div.user-item', null,
+                d('div.name', null, this.user.fullName),
+                d('span.clear', {title: "Удалить собеседника", events: {click: this.onRemove}}, '×')
             )
         );
     }
