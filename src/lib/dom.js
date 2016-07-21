@@ -97,31 +97,31 @@ export class List extends Component {
     update(newArray) {
         const newKeyMap = {};
         const newItems = this.makeItems(newArray, newKeyMap);
-        const oldItems = [];
-        for (let i = 0; i < this.items.length; i++) {
-            const item = this.items[i];
-            if (!newItems.find(newItem => newItem.key == item.key)) {
-                item.node.parentNode.removeChild(item.node);
-            } else {
-                oldItems.push(item);
-            }
-        }
         let j = 0;
-        let before = oldItems.length ? oldItems[0].node : null;
+        let before = this.items.length ? this.items[0].node : null;
+        var usedOldKeys = {};
         for (let i = 0; i < newItems.length; i++) {
             const newItem = newItems[i];
-            const oldItem = oldItems[j];
+            const oldItem = this.items[j];
 
             if (oldItem && oldItem.key == newItem.key) {
                 j++;
                 newItem.node = oldItem.node;
                 before = oldItem.node.nextSibling;
+                usedOldKeys[oldItem.key] = true;
             } else {
                 var node = prepareDom(this.viewFn(newItem.item, i));
                 newItem.node = node;
                 this.rootNode.insertBefore(node, before);
             }
         }
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            if (!usedOldKeys[item.key]) {
+                item.node.parentNode.removeChild(item.node);
+            }
+        }
+        //todo: move old node
         this.items = newItems;
     }
 
