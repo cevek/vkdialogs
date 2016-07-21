@@ -11,6 +11,8 @@ export class DialogView extends Component {
     actionsNode;
     saveButtonNode;
 
+    placeholder = 'Введите имя или фамилию';
+
     constructor(model) {
         super();
         this.model = model;
@@ -36,8 +38,11 @@ export class DialogView extends Component {
             } else {
                 this.actionsNode.classList.add('hidden');
             }
+            this.filterInputNode.placeholder = selectedUsers.length == 0 ? this.placeholder : '';
+            this.filterInputNode.setAttribute('fullsize', selectedUsers.length == 0);
             this.selectedUsersCmp.update(selectedUsers);
             this.friendListCmp.getItems().forEach(item => item.view.update());
+            this.filterInputNode.focus();
         }
     };
 
@@ -69,40 +74,45 @@ export class DialogView extends Component {
         this.model.save().then(()=> {
             this.saveButtonNode.removeAttribute('disabled');
             this.saveButtonNode.classList.remove('saving');
-            this.destroy();
         })
     };
 
     render() {
         this.friendListCmp = new List({
-            props: {class: 'friend-list'},
+            props: {class: 'dialog__friend-list'},
             array: this.model.filteredUsers,
             key: user => user.id,
             view: user => new DialogFriend(this.model, user)
         });
 
         this.selectedUsersCmp = new List({
-            props: {class: 'selected-users'},
+            props: {class: 'dialog__selected-users'},
             array: this.model.selectedUsers,
             key: user => user.id,
             view: user => new DialogUserItem(this.model, user)
         });
 
         return (
-            d('div.dialog-view', null,
-                d('div.dialog-header', null,
+            d('div.dialog', null,
+                d('div.dialog__header', null,
                     'Создание беседы',
-                    d('span.close', {title: "Закрыть", events: {click: this.onClose}}, '×')
+                    d('span.dialog__close', {title: "Закрыть", events: {click: this.onClose}}, '×')
                 ),
-                d('div.dialog-filter', null,
+                d('div.dialog__filter', null,
                     this.selectedUsersCmp,
-                    this.filterInputNode = d('input.dialog-input', {type: 'text', events: {input: this.onFilterInput}}),
-                    this.filterLoaderNode = d('span.spinner.hidden'),
-                    this.filterClearNode = d('span.clear.hidden', {events: {click: this.onFilterClear}}, '×')
+                    this.filterInputNode = d('input.dialog__input', {
+                        type: 'text',
+                        placeholder: this.placeholder,
+                        fullsize: true,
+                        events: {input: this.onFilterInput}
+                    }),
+                    this.filterLoaderNode = d('span.dialog__spinner.dialog__filter-icon.hidden'),
+                    this.filterClearNode = d('span.dialog__clear.dialog__filter-icon.hidden', {events: {click: this.onFilterClear}}, '×')
                 ),
                 this.friendListCmp,
-                this.actionsNode = d('div.actions.hidden', null,
-                    this.saveButtonNode = d('button', {events: {change: this.onSave}}, 'Создать беседу'),
+                this.actionsNode = d('div.dialog__actions.hidden', null,
+                    d('input.dialog__name', {placeholder: 'Введите название беседы'}),
+                    this.saveButtonNode = d('button.btn.dialog__submit', {events: {click: this.onSave}}, 'Создать беседу'),
                 )
             )
         );
@@ -123,19 +133,17 @@ class DialogFriend extends Component {
     };
 
     update() {
-        this.checkboxNode.checked = this.model.userIsSelected(this.user);
+        this.checkboxNode.setAttribute('checked', this.model.userIsSelected(this.user));
     }
 
     render() {
         return (
-            d('div.friend', null,
-                d('div.photo', {style: {backgroundImage: `url(${this.user.photo})`}}),
-                d('div.name', null, this.user.fullName),
-                this.checkboxNode = d('input.checkbox', {
-                    type: 'checkbox',
-                    checked: this.model.userIsSelected(this.user),
-                    events: {change: this.onToggleSelect}
-                }),
+            d('a.friend', {events: {click: this.onToggleSelect}},
+                d('div.friend__inner', null,
+                    d('div.friend__photo', {style: {backgroundImage: `url(${this.user.photo})`}}),
+                    d('div.friend__name', null, this.user.fullName),
+                    this.checkboxNode = d('div.checkbox.friend__checkbox', {checked: this.model.userIsSelected(this.user)}),
+                )
             )
         );
     }
@@ -155,8 +163,8 @@ class DialogUserItem extends Component {
     render() {
         return (
             d('div.user-item', null,
-                d('div.name', null, this.user.fullName),
-                d('span.clear', {title: "Удалить собеседника", events: {click: this.onRemove}}, '×')
+                d('div.user-item__name', null, this.user.fullName),
+                d('span.user-item__clear', {title: "Удалить собеседника", events: {click: this.onRemove}}, '×')
             )
         );
     }

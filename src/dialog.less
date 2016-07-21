@@ -1,31 +1,224 @@
+html, body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: #edeef0;
+}
+
+body, input, button, select, textarea {
+  font-family: Helvetica Neue, sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+
 .hidden {
   display: none !important;
 }
 
-.clear {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  vertical-align: middle;
+@bg: #fff;
+@lightBg: #fafbfc;
+
+@btnColor: #5e81a8;
+@xColor: #94a3bb;
+@borderColor: #e7e8ec;
+@linkColor: #2a5885;
+
+@tokenColor: #55677d;
+@tokenBgColor: #dae2ea;
+
+
+a {
+  color: @linkColor;
+}
+
+.btn {
+  padding: 7px 16px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  outline: none;
   text-align: center;
+  background-color: @btnColor;
+  color: @bg;
+  border: 0;
+  border-radius: 2px;
+  box-sizing: border-box;
+
+  &[disabled] {
+    background: lighten(@btnColor, 20%);
+  }
 }
 
-.spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  background: url(images/spinner.gif) no-repeat center;
+.dialog {
+  background: white;
+  width: 550px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: auto;
+
+  &__header {
+    border-bottom: 1px solid @borderColor;
+    padding: 16px 10px;
+    margin: 0;
+    user-select: none;
+    font-weight: 500;
+    background: @lightBg;
+  }
+
+  &__close {
+    float: right;
+    font-size: 24px;
+    margin: -8px 0;
+    color: @xColor;
+    cursor: pointer;
+  }
+
+  &__filter {
+    margin: 0 20px;
+    border-bottom: 1px solid @borderColor;
+  }
+
+  &__filter-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    vertical-align: middle;
+    text-align: center;
+    float: right;
+    margin-top: 12px;
+  }
+
+  &__selected-users {
+    display: inline-block;
+  }
+
+  &__input {
+    border: none;
+    width: 100px;
+    padding: 14px 0;
+    outline: none;
+
+    &[fullsize="true"] {
+      width: 450px;
+    }
+  }
+
+  &__clear {
+    margin-top: 10px;
+    font-size: 19px;
+    color: @xColor;
+    cursor: pointer;
+  }
+
+  &__spinner {
+    background: url(images/spinner.gif) no-repeat center;
+  }
+
+  &__friend-list {
+    overflow: scroll;
+  }
+
+  &__actions {
+    padding: 20px;
+    border-top: solid 1px @borderColor;
+  }
+
+  &__submit {
+    float: right;
+  }
+
+  &__name {
+    border: none;
+    width: 300px;
+    padding: 7px;
+
+  }
+
 }
 
-.photo{
-  display: inline-block;
-  width: 50px;
-  height: 50px;
-  background-size: cover;
+.friend {
+  display: block;
+  line-height: 34px;
+
+  &:hover {
+    background-color: @lightBg;
+  }
+
+  &__inner {
+    padding: 10px 0;
+    margin: 0 20px;
+    border-bottom: 1px solid @borderColor;
+    height: 34px;
+    overflow: hidden;
+  }
+
+  &:last-child {
+    .friend__inner {
+      border-bottom: none;
+    }
+  }
+
+  &__photo {
+    display: inline-block;
+    background-size: cover;
+    border-radius: 100%;
+    float: left;
+    width: 34px;
+    height: 34px;
+  }
+
+  &__name {
+    margin: 0 10px;
+    font-weight: 500;
+    width: 300px;
+    display: inline-block;
+  }
+
+  &__checkbox {
+    float: right;
+    margin: 6px 5px 0 0;
+  }
+
 }
 
-.name {
+.user-item {
   display: inline-block;
+  margin: 7px 5px 0 0;
+  background-color: @tokenBgColor;
+  border-radius: 2px;
+  color: @tokenColor;
+  cursor: pointer;
+
+  &__name {
+    display: inline-block;
+    padding: 6px 10px;
+    vertical-align: middle;
+  }
+
+  &__clear {
+    display: inline-block;
+    vertical-align: middle;
+    width: 10px;
+    height: 10px;
+    padding: 7px 5px;
+    font-size: 18px;
+    margin: -13px 5px 0 -5px;
+  }
 }
+
+.checkbox {
+  display: inline-block;
+  background: url(images/checkbox.png) no-repeat 0 -26px;;
+  width: 22px;
+  height: 22px;
+  background-size: 22px 48px;
+
+  &[checked="true"] {
+    background-position: 0 0;
+  }
+}
+
