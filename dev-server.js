@@ -8,3 +8,4 @@ var server = new WebpackDevServer(webpack(wpConfig), {
     historyApiFallback: false
 });
 server.listen(7000);
+console.log("Open http://localhost:7000/");
