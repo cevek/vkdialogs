@@ -51,7 +51,7 @@ export class DialogView extends Component {
     };
 
     onFilterInput = (event) => {
-        var text = event.target.value;
+        const text = event.target.value;
         this.filterClearNode.classList.add('hidden');
         this.filterLoaderNode.classList.remove('hidden');
         this.model.setFilterText(text).then(()=> {

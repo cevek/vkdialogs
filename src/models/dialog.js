@@ -24,7 +24,7 @@ export class DialogModel {
     _fetchFilterVersion = 0;
 
     fetchFilter() {
-        var version = ++this._fetchFilterVersion;
+        const version = ++this._fetchFilterVersion;
         return this.api.searchFriends(this.filterText).then(users => {
             users = users.map(json => new User(json));
             if (this._fetchFilterVersion == version) {

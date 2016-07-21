@@ -11,7 +11,7 @@ const config = {
     }
 };
 
-var loader = document.body.appendChild(document.createElement('div'));
+const loader = document.body.appendChild(document.createElement('div'));
 loader.textContent = 'Загрузка...';
 const api = new Api(config.api);
 api.auth().then(data => {

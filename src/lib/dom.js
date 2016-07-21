@@ -22,14 +22,14 @@ function prepareAttrs(attrs, node) {
     for (const attr in attrs) {
         if (attrs.hasOwnProperty(attr)) {
             if (attr === 'style') {
-                var style = attrs.style;
+                const style = attrs.style;
                 for (const prop in style) {
                     if (style.hasOwnProperty(prop)) {
                         node.style[prop] = style[prop];
                     }
                 }
             } else if (attr == 'events') {
-                var events = attrs.events;
+                const events = attrs.events;
                 for (const event in events) {
                     if (events.hasOwnProperty(event)) {
                         node.addEventListener(event, events[event]);
@@ -89,7 +89,7 @@ export class List extends Component {
 
     makeItems(sourceArray, keyMap) {
         return sourceArray.map((item, i) => {
-            var key = this.params.key(item, i);
+            const key = this.params.key(item, i);
             keyMap[key] = item;
             return {key, item, node: null, view: null};
         });
@@ -100,7 +100,7 @@ export class List extends Component {
         const newItems = this.makeItems(newArray, newKeyMap);
         let j = 0;
         let before = this.items.length ? this.items[0].node : null;
-        var usedOldKeys = {};
+        const usedOldKeys = {};
         for (let i = 0; i < newItems.length; i++) {
             const newItem = newItems[i];
             const oldItem = this.items[j];
@@ -112,8 +112,8 @@ export class List extends Component {
                 before = oldItem.node.nextSibling;
                 usedOldKeys[oldItem.key] = true;
             } else {
-                var view = this.params.view(newItem.item, i);
-                var node = prepareDom(view);
+                const view = this.params.view(newItem.item, i);
+                const node = prepareDom(view);
                 newItem.node = node;
                 newItem.view = view;
                 this.rootNode.insertBefore(node, before);
@@ -131,8 +131,8 @@ export class List extends Component {
 
     render() {
         return this.rootNode = d('div', this.params.props, ...this.items.map((item, i) => {
-            var view = this.params.view(item.item, i);
-            var node = prepareDom(view);
+            const view = this.params.view(item.item, i);
+            const node = prepareDom(view);
             item.node = node;
             item.view = view;
             return node;
