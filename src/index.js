@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import {Api} from './lib/api';
 import {d} from './lib/dom';
 import {DialogView} from './dialog-view';
@@ -10,7 +11,8 @@ const config = {
     }
 };
 
-var loader = document.querySelector('#loading');
+var loader = document.body.appendChild(document.createElement('div'));
+loader.textContent = 'Загрузка...';
 const api = new Api(config.api);
 api.auth().then(data => {
     const dialogModel = new DialogModel(api);
@@ -23,6 +25,3 @@ api.auth().then(data => {
 }).catch(err => {
     loader.textContent = 'Произошла ошибка'
 });
-
-
-

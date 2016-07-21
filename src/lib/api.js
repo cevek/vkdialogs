@@ -29,11 +29,9 @@ export class Api {
 
     call(method, params) {
         return new Promise((resolve, reject) => {
-            setTimeout(()=> {
-                VK.api(method, params, (r) => {
-                    r.response ? resolve(r.response) : reject(r)
-                })
-            }, 1000);
+            VK.api(method, params, (r) => {
+                r.response ? resolve(r.response) : reject(r)
+            })
         });
     }
 
@@ -42,6 +40,6 @@ export class Api {
     }
 
     getAllFriends() {
-        return this.call('friends.get', {fields: 'photo_100', order: 'hints'})
+        return this.call('friends.get', {fields: 'photo_100', order: 'hints', limit: 100})
     }
 }
