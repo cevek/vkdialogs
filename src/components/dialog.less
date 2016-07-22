@@ -7,10 +7,14 @@
   flex-direction: column;
   height: 100%;
   margin: auto;
+  border: 1px solid @borderColor;
+  border-bottom: 0;
+  border-top: 0;
+
 
   &__header {
     border-bottom: 1px solid @borderColor;
-    padding: 16px 10px;
+    padding: 16px 15px;
     margin: 0;
     user-select: none;
     font-weight: 500;
@@ -20,13 +24,13 @@
   &__close {
     float: right;
     font-size: 24px;
-    margin: -8px 0;
     color: @xColor;
     cursor: pointer;
+    margin: 3px 0 0 0;
   }
 
   &__filter {
-    margin: 0 20px;
+    padding: 0 20px;
     border-bottom: 1px solid @borderColor;
   }
 
@@ -42,7 +46,7 @@
   }
 
   &__selected-users {
-    display: inline-block;
+    display: inline;
   }
 
   &__input {
@@ -93,23 +97,26 @@
 .friend {
   display: block;
   line-height: 34px;
+  margin: 0 20px;
+  border-bottom: 1px solid @borderColor;
+  user-select: none;
+
 
   &:hover {
     background-color: @lightBg;
+    margin: -1px 0 0 0;
+    border-top: 1px solid @borderColor;
+    padding: 0 20px;
   }
 
   &__inner {
     padding: 10px 0;
-    margin: 0 20px;
-    border-bottom: 1px solid @borderColor;
     height: 34px;
     overflow: hidden;
   }
 
   &:last-child {
-    .friend__inner {
-      border-bottom: none;
-    }
+    border-bottom: none;
   }
 
   &__photo {
@@ -142,33 +149,27 @@
   border-radius: 2px;
   color: @tokenColor;
   cursor: pointer;
+  user-select: none;
 
   &__name {
     display: inline-block;
-    padding: 6px 10px;
+    padding: 5px 0 6px 10px;
     vertical-align: middle;
   }
 
   &__clear {
     display: inline-block;
     vertical-align: middle;
-    width: 10px;
-    height: 10px;
-    padding: 7px 5px;
-    font-size: 18px;
-    margin: -13px 5px 0 -5px;
+    width: 30px;
+    height: 28px;
+    background-size: 10px 10px;
+    &:active{
+      position: relative;
+      top: 1px;
+    }
+
   }
 }
 
-.checkbox {
-  display: inline-block;
-  background: url(../images/checkbox.png) no-repeat 0 -26px;;
-  width: 22px;
-  height: 22px;
-  background-size: 22px 48px;
 
-  &[checked="true"] {
-    background-position: 0 0;
-  }
-}
 

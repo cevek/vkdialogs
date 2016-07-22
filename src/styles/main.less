@@ -1,4 +1,5 @@
 @import "variables";
+
 html, body {
   height: 100%;
   padding: 0;
@@ -10,15 +11,27 @@ body {
 }
 
 body, input, button, select, textarea {
-  font-family: Helvetica Neue, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Roboto, Open Sans, Helvetica Neue, sans-serif;
   font-size: 13px;
   outline: none;
+}
+
+input {
+
+  &::placeholder {
+    color: @placeholderColor;
+    transition: color 0.2s ease;
+  }
+
+  &:focus::placeholder {
+    color: lighten(@placeholderColor, 20%)
+  }
+
 }
 
 .hidden {
   display: none !important;
 }
-
 
 a {
   color: @linkColor;
@@ -36,11 +49,45 @@ a {
   border-radius: 2px;
   box-sizing: border-box;
 
+  &:hover {
+    background: lighten(@btnColor, 3%);
+  }
+
+  &:active {
+    background: darken(@btnColor, 3%);
+    padding-top: 8px;
+    padding-bottom: 7px;
+  }
+
   &[disabled] {
     background: lighten(@btnColor, 20%);
   }
 }
 
-.app{
+.app {
   height: 100%;
+}
+
+.checkbox {
+  display: inline-block;
+  background: url(../images/checkbox.png) no-repeat 0 -26px;
+  width: 22px;
+  height: 22px;
+  background-size: 22px 48px;
+
+  &[checked="true"] {
+    background-position: 0 0;
+  }
+}
+
+.clear {
+  background: url(../images/plus.png) center no-repeat;
+  background-size: 100%;
+  width: 10px;
+  height: 10px;
+  opacity: .6;
+  transition: opacity 0.2s ease;
+  &:hover {
+    opacity: 1;
+  }
 }

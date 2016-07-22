@@ -43,6 +43,7 @@ export class DialogView extends Component {
             this.selectedUsersCmp.update(selectedUsers);
             this.friendListCmp.getItems().forEach(item => item.view.update());
             this.filterInputNode.focus();
+            this.onFilterClear();
         }
     };
 
@@ -96,18 +97,20 @@ export class DialogView extends Component {
             d('div.dialog', null,
                 d('div.dialog__header', null,
                     'Создание беседы',
-                    d('span.dialog__close', {title: "Закрыть", events: {click: this.onClose}}, '×')
+                    d('span.clear.dialog__close', {title: "Закрыть", events: {click: this.onClose}})
                 ),
                 d('div.dialog__filter', null,
                     this.selectedUsersCmp,
                     this.filterInputNode = d('input.dialog__input', {
                         type: 'text',
+                        autocomplete: 'off',
+                        spellcheck: false,
                         placeholder: this.placeholder,
                         fullsize: true,
                         events: {input: this.onFilterInput}
                     }),
-                    this.filterLoaderNode = d('span.dialog__spinner.dialog__filter-icon.hidden'),
-                    this.filterClearNode = d('span.dialog__clear.dialog__filter-icon.hidden', {events: {click: this.onFilterClear}}, '×')
+                    this.filterLoaderNode = d('span.dialog__spinner.dialog__filter-icon.hidden', null),
+                    this.filterClearNode = d('span.clear.dialog__clear.dialog__filter-icon.hidden', {events: {click: this.onFilterClear}})
                 ),
                 this.friendListCmp,
                 this.actionsNode = d('div.dialog__actions.hidden', null,
@@ -128,8 +131,9 @@ class DialogFriend extends Component {
         this.user = user;
     }
 
-    onToggleSelect = () => {
+    onToggleSelect = (event) => {
         this.model.toggleUser(this.user);
+        event.preventDefault();
     };
 
     update() {
@@ -138,7 +142,7 @@ class DialogFriend extends Component {
 
     render() {
         return (
-            d('a.friend', {events: {click: this.onToggleSelect}},
+            d('a.friend', {href: 'http://vk.com', events: {click: this.onToggleSelect}},
                 d('div.friend__inner', null,
                     d('div.friend__photo', {style: {backgroundImage: `url(${this.user.photo})`}}),
                     d('div.friend__name', null, this.user.fullName),
@@ -164,7 +168,7 @@ class DialogUserItem extends Component {
         return (
             d('div.user-item', null,
                 d('div.user-item__name', null, this.user.fullName),
-                d('span.user-item__clear', {title: "Удалить собеседника", events: {click: this.onRemove}}, '×')
+                d('span.clear.user-item__clear', {title: "Удалить собеседника", events: {click: this.onRemove}})
             )
         );
     }
