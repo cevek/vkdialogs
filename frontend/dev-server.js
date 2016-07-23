@@ -1,6 +1,6 @@
 var WebpackDevServer = require("webpack-dev-server");
 var webpack = require("webpack");
-var wpConfig = require('./webpack.config');
+var wpConfig = require('./webpack.config.js');
 
 var server = new WebpackDevServer(webpack(wpConfig), {
     publicPath: wpConfig.output.publicPath,
