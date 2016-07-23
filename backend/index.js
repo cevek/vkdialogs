@@ -12,3 +12,7 @@ app.models = require('./app/models')(app);
 
 app.listen(7500);
 console.log('Listen http://localhost:7500');
+
+process.on('uncaughtException', (err) => {
+    console.error(err instanceof Error ? err.stack : err);
+});

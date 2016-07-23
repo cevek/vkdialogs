@@ -6,7 +6,7 @@
   "keywords": [],
   "author": "",
   "scripts": {
-    "start": "node dev-server.js"
+    "start": "webpack"
   },
   "license": "ISC",
   "devDependencies": {

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "pm2 start index.js"
   },
   "keywords": [],
   "author": "",
@@ -14,5 +14,8 @@
     "koa-controller": "^1.1.0",
     "koa-static": "^2.0.0",
     "mysql": "^2.11.1"
+  },
+  "devDependencies": {
+    "pm2": "^1.1.3"
   }
 }
