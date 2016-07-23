@@ -34,15 +34,21 @@ export class DialogView extends Component {
         }
     };
 
-    resizeFilterInput() {
+    resizeFilterInput(filterRectBefore) {
         const lastItem = this.selectedUsersCmp.getItems().pop();
         if (lastItem) {
             const tokenRect = lastItem.node.getBoundingClientRect();
-            const filterRect = this.filterNode.getBoundingClientRect();
-            const size = filterRect.right - tokenRect.right - 10;
-            this.filterInputNode.style.width = size > 100 ? `${size}px` : '99%';
+            const size = filterRectBefore.right - tokenRect.right - 10;
+            const isOverMinWith = size > 100;
+            this.filterInputNode.style.width = isOverMinWith ? `${size}px` : '99%';
         } else {
             this.filterInputNode.style.width = '';
+        }
+
+        const filterRectAfter = this.filterNode.getBoundingClientRect();
+        const heightDiff = filterRectBefore.height - filterRectAfter.height;
+        if (heightDiff) {
+            this.friendListCmp.rootNode.scrollTop -= heightDiff;
         }
     }
 
@@ -55,11 +61,13 @@ export class DialogView extends Component {
                 this.actionsNode.classList.add('dialog__actions--hidden');
             }
             this.filterInputNode.placeholder = selectedUsers.length == 0 ? this.placeholder : '';
-            this.selectedUsersCmp.update(selectedUsers);
             this.friendListCmp.getItems().forEach(item => item.view.update());
             this.filterInputNode.focus();
             this.onFilterClear();
-            this.resizeFilterInput();
+
+            const filterRect = this.filterNode.getBoundingClientRect();
+            this.selectedUsersCmp.update(selectedUsers);
+            this.resizeFilterInput(filterRect);
             if (selectedUsers.length > 0) {
                 this.filterClearNode.classList.add('dialog__hidden');
             } else {
