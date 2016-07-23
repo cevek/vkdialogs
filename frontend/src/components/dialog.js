@@ -30,7 +30,7 @@ export class DialogView extends Component {
 
     onFilteredUsersChange = filteredUsers => {
         if (this.mount) {
-            this.friendListCmp.update(filteredUsers);
+            this.friendListCmp.updateVisible(filteredUsers);
         }
     };
 

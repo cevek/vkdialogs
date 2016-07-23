@@ -91,6 +91,8 @@ export class Component {
  * It maps array items with generated dom elements
  */
 export class List extends Component {
+    _visibleKeyMap = {};
+
     /**
      * @param.props {Object} - props to root elements
      * @param.array {T[]} - source array of any data
@@ -100,7 +102,7 @@ export class List extends Component {
     constructor(params) {
         super();
         this.params = params;
-        this.keyMap = {};
+        this.keyMap = this._visibleKeyMap = {};
         this.items = this._makeItems(params.array, this.keyMap);
     }
 
@@ -113,10 +115,11 @@ export class List extends Component {
     }
 
     _makeItems(sourceArray, keyMap) {
-        return sourceArray.map((item, i) => {
-            const key = this.params.key(item, i);
+        return sourceArray.map((value, i) => {
+            const key = this.params.key(value, i);
+            const item = {key, value, node: null, view: null};
             keyMap[key] = item;
-            return {key, item, node: null, view: null};
+            return item;
         });
     }
 
@@ -141,7 +144,7 @@ export class List extends Component {
                 before = oldItem.node.nextSibling;
                 usedOldKeys[oldItem.key] = true;
             } else {
-                const view = this.params.view(newItem.item, i);
+                const view = this.params.view(newItem.value, i);
                 const node = prepareDom(view);
                 newItem.node = node;
                 newItem.view = view;
@@ -155,12 +158,42 @@ export class List extends Component {
             }
         }
         //todo: move old node
+        this.keyMap = this._visibleKeyMap = newKeyMap;
         this.items = newItems;
+    }
+
+    /**
+     * Diff new array with old array and apply difference using "hidden" class name
+     * @param newArray {T[]} - new array to apply to the list
+     */
+    updateVisible(newArray) {
+        const newKeyMap = {};
+        const newItems = this._makeItems(newArray, newKeyMap);
+        const usedOldKeys = {};
+        for (let i = 0; i < newItems.length; i++) {
+            const newItem = newItems[i];
+            const mountItem = this.keyMap[newItem.key];
+            if (mountItem) {
+                if (!this._visibleKeyMap[newItem.key]) {
+                    mountItem.node.classList.remove('hidden');
+                }
+                usedOldKeys[newItem.key] = true;
+            }
+        }
+        for (let i = 0; i < this.items.length; i++) {
+            const item = this.items[i];
+            if (!usedOldKeys[item.key]) {
+                if (this._visibleKeyMap[item.key]) {
+                    item.node.classList.add('hidden');
+                }
+            }
+        }
+        this._visibleKeyMap = newKeyMap;
     }
 
     render() {
         return this.rootNode = d('div', this.params.props, ...this.items.map((item, i) => {
-            const view = this.params.view(item.item, i);
+            const view = this.params.view(item.value, i);
             const node = prepareDom(view);
             item.node = node;
             item.view = view;
