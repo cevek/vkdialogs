@@ -1,3 +1,4 @@
+import 'whatwg-fetch';
 import "babel-polyfill";
 import "./styles/main.less";
 import {Api} from "./lib/api";
