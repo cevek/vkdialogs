@@ -1,4 +1,4 @@
-import {hasText} from '../lib/utils';
+import {hasText, translitToCyr, translitToLat} from "../lib/utils";
 
 export class User {
     id;
@@ -10,10 +10,16 @@ export class User {
         this.firstName = json.first_name;
         this.lastName = json.last_name;
         this.photo = json.photo;
-        this.fullName = this.firstName + ' ' + this.lastName;
+        const fullName = (this.firstName + ' ' + this.lastName).toLocaleLowerCase();
+        this.fullName = fullName;
+        this.searchVariations = [
+            fullName,
+            translitToCyr(fullName),
+            translitToLat(fullName),
+        ];
     }
 
     hasText(str) {
-        return hasText(this.fullName, str);
+        return hasText(this.searchVariations, str);
     }
 }

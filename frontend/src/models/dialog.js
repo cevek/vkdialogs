@@ -1,6 +1,6 @@
-import {EventEmitter} from '../lib/event-emitter';
-import {User} from './user';
-import {uniqueArray} from '../lib/utils';
+import {EventEmitter} from "../lib/event-emitter";
+import {User} from "./user";
+import {uniqueArray, translitToLat, translitToCyr, traslitKeyboardToCyr, traslitKeyboardToLat} from "../lib/utils";
 
 export class DialogViewModel {
     eventBus = new EventEmitter();
@@ -16,17 +16,27 @@ export class DialogViewModel {
 
     setFilterText(text) {
         this.filterText = text;
-        this.filteredUsers = this.filterUsers();
+        const lowerText = text.toLocaleLowerCase();
+        const textVariations = uniqueArray([
+            lowerText,
+            translitToLat(lowerText),
+            translitToCyr(lowerText),
+            traslitKeyboardToCyr(lowerText),
+            traslitKeyboardToLat(lowerText),
+            translitToLat(traslitKeyboardToCyr(lowerText)),
+            translitToCyr(traslitKeyboardToLat(lowerText)),
+        ]);
+        this.filteredUsers = this.filterUsers(textVariations);
         this.eventBus.fire('filteredUsers', this.filteredUsers);
-        return text ? this.fetchFilterQuery() : Promise.resolve();
+        return text ? this.fetchFilterQuery(textVariations) : Promise.resolve();
     }
 
     // hack, because we cannot abort old promise
     _fetchFilterVersion = 0;
 
-    fetchFilterQuery() {
+    fetchFilterQuery(textVariations) {
         const version = ++this._fetchFilterVersion;
-        this.api.searchFriends(this.filterText).then(users => {
+        this.api.searchFriends(textVariations).then(users => {
             users = users.map(json => new User(json));
             if (this._fetchFilterVersion == version) {
                 const usersFromServer = this.allUsers.filter(user => users.some(u => u.id == user.id));
@@ -55,12 +65,9 @@ export class DialogViewModel {
         });
     }
 
-    filterUsers() {
-        if (!this.filterText) {
-            return this.allUsers.slice();
-        }
+    filterUsers(textVariations) {
         return this.allUsers.filter(user =>
-            user.hasText(this.filterText));
+            user.hasText(textVariations));
     }
 
     userIsSelected(user) {

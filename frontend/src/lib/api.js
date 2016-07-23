@@ -3,22 +3,29 @@ export class Api {
         this.config = config;
     }
 
-    toUrlSearchQuery(obj) {
-        if (!obj) {
-            return '';
+    toUrlSearchQuery(obj, prefix) {
+        const str = [];
+        for (const p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                const k = prefix;
+                const v = obj[p];
+                str.push(typeof v == "object"
+                    ? this.toUrlSearchQuery(v, p)
+                    : `${encodeURIComponent(k)}=${encodeURIComponent(v)}`
+                );
+            }
         }
-        const keys = Object.keys(obj);
-        return keys.length ? '?' + keys.map(key => `${key}=${encodeURIComponent(obj[key])}`).join('&') : '';
+        return str.join('&');
     }
 
 
     fetch(method, queries) {
         return new Promise((resolve, reject)=> {
-            setTimeout(()=>{
-                fetch(`/api/${method}/${this.toUrlSearchQuery(queries)}`).then(response => response.json()).then(resolve, reject);
+            setTimeout(()=> {
+                fetch(`/api/${method}/?${this.toUrlSearchQuery(queries)}`).then(response => response.json()).then(resolve, reject);
             }, 1000);
         });
-        return fetch(`/api/${method}/${this.toUrlSearchQuery(queries)}`).then(response => response.json());
+        return fetch(`/api/${method}/?${this.toUrlSearchQuery(queries)}`).then(response => response.json());
     }
 
     searchFriends(query) {

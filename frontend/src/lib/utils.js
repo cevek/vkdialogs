@@ -56,24 +56,10 @@ export function traslitKeyboardToLat(text) {
 
 /**
  * Check that sub text contains in source with different types of enter
- * @param source {string}
- * @param sub {string}
+ * @param sourceVariations {string[]}
+ * @param textVariations {string[]}
  * @return {boolean}
  */
-export function hasText(source, sub) {
-    source = source.toLocaleLowerCase();
-    // todo: too heavy load, need to cache translits
-    const sourceVersions = [
-        source,
-        translitToCyr(source),
-        translitToLat(source),
-    ];
-    const subVersions = [
-        sub,
-        translitToLat(sub),
-        translitToCyr(sub),
-        traslitKeyboardToCyr(sub),
-        traslitKeyboardToLat(sub)
-    ];
-    return sourceVersions.some(source => subVersions.some(sub => source.indexOf(sub) > -1));
+export function hasText(sourceVariations, textVariations) {
+    return sourceVariations.some(source => textVariations.some(sub => source.indexOf(sub) > -1));
 }
