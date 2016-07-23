@@ -13,16 +13,12 @@ export class App extends Component {
 
     render() {
         const model = new DialogViewModel(this.api);
-        this.api.auth().then(data => {
-            model.fetchUsers().then(()=> {
+        model.fetchUsers().then(()=> {
 
-                const dialogView = new DialogView(model);
-                this.rootNode.appendChild(d(dialogView));
+            const dialogView = new DialogView(model);
+            this.rootNode.appendChild(d(dialogView));
 
-                this.loaderNode.classList.add('hidden');
-            });
-        }).catch(err => {
-            this.loaderNode.textContent = 'Произошла ошибка'
+            this.loaderNode.classList.add('hidden');
         });
 
         return d('div.app', null,

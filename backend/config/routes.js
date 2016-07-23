@@ -1,3 +1,3 @@
 module.exports = {
-    'get /users/': { to: 'api#getUsers' },
+    'get /api/users/': { to: 'api#getUsers' },
 };

@@ -1,46 +1,26 @@
 export class Api {
     constructor(config) {
         this.config = config;
-        VK.init({apiId: config.appId});
     }
 
-    auth() {
-        // todo: opening new window needs same event loop stack after click, promises broke that
-        return this.getLoginStatus().then(session => {
-            if (!session) {
-                return new Promise((resolve, reject)=> {
-                    VK.Auth.login(response => {
-                        response.session ? resolve(response.session) : reject(response)
-                    }, this.config.scope);
-                });
-            }
-            return session;
-        }).then(session => {
-            this.session = session;
-            return session;
-        });
-    }
-
-    getLoginStatus() {
-        return new Promise((resolve, reject)=> {
-            VK.Auth.getLoginStatus(response => resolve(response.session));
-        });
+    toUrlSearchQuery(obj) {
+        if (!obj) {
+            return '';
+        }
+        const keys = Object.keys(obj);
+        return keys.length ? '?' + keys.map(key => `${key}=${encodeURIComponent(obj[key])}`).join('&') : '';
     }
 
 
-    call(method, params) {
-        return new Promise((resolve, reject) => {
-            VK.api(method, params, (r) => {
-                r.response ? resolve(r.response) : reject(r)
-            })
-        });
+    fetch(method, queries) {
+        return fetch(`/api/${method}/${this.toUrlSearchQuery(queries)}`).then(response => response.json());
     }
 
-    searchFriends(q) {
-        return this.call('friends.search', {q, fields: 'photo_100', count: 100});
+    searchFriends(query) {
+        return this.fetch('users', {query});
     }
 
     getAllFriends() {
-        return this.call('friends.get', {fields: 'photo_100', order: 'hints', limit: 100})
+        return this.fetch('users')
     }
 }

@@ -6,10 +6,10 @@ export class User {
     lastName;
 
     constructor(json) {
-        this.id = json.uid;
+        this.id = json.id;
         this.firstName = json.first_name;
         this.lastName = json.last_name;
-        this.photo = json.photo_100;
+        this.photo = json.photo;
         this.fullName = this.firstName + ' ' + this.lastName;
     }
 

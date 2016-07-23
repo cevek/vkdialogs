@@ -1,4 +1,5 @@
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     context: __dirname,
@@ -37,5 +38,8 @@ module.exports = {
     devtool: 'source-map',
     plugins: [
         new ExtractTextPlugin('style.css'),
+        new HtmlWebpackPlugin({
+            title: 'Демо',
+        })
     ]
 };
