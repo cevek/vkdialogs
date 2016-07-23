@@ -10,12 +10,12 @@ export class User {
         this.firstName = json.first_name;
         this.lastName = json.last_name;
         this.photo = json.photo;
-        const fullName = (this.firstName + ' ' + this.lastName).toLocaleLowerCase();
-        this.fullName = fullName;
+        this.fullName = this.firstName + ' ' + this.lastName;
+        const fullNameLower = this.fullName.toLocaleLowerCase();
         this.searchVariations = [
-            fullName,
-            translitToCyr(fullName),
-            translitToLat(fullName),
+            fullNameLower,
+            translitToCyr(fullNameLower),
+            translitToLat(fullNameLower),
         ];
     }
 
