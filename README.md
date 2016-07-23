@@ -8,12 +8,20 @@
 [Демо](https://cevek.github.io/vkdialogs/)
 
 
-## Установка и запуск
-```npm install```
+## Установка
+```bash
+cd frontend && npm install && cd ../backend && npm install && cd ..
+```
+Настроить конфиг для доступа к базе `backend/config/config.development.js`
 
-```npm start```
+Выполнить в базу sql запрос `backend/data.sql`
 
-Открываем [http://localhost:7000/](http://localhost:7000/)
+## Запуск
+```
+cd frontend && npm start && cd ../backend && npm start && cd ..
+```
+
+Открываем [http://localhost:7500/](http://localhost:7500/)
 
 
 
