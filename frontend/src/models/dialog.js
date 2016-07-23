@@ -14,6 +14,10 @@ export class DialogViewModel {
         this.api = api;
     }
 
+    _prevFetchedUsers = [];
+    _prevFetchedQuery = '';
+    _localFilteredUsers;
+
     setFilterText(text) {
         this.filterText = text;
         const lowerText = text.toLocaleLowerCase();
@@ -26,26 +30,38 @@ export class DialogViewModel {
             translitToLat(traslitKeyboardToCyr(lowerText)),
             translitToCyr(traslitKeyboardToLat(lowerText)),
         ]);
-        this.filteredUsers = this.filterUsers(textVariations);
+        this.filteredUsers = [];
+        let users = this._localFilteredUsers = this.filterUsers(textVariations);
+        // if prev query has current query append users from prev query
+        if (this._prevFetchedQuery.indexOf(text) > -1) {
+            users = users.concat(this._prevFetchedUsers);
+        }
+        this._setFilteredUsers(users);
         this.eventBus.fire('filteredUsers', this.filteredUsers);
-        return text ? this.fetchFilterQuery(textVariations) : Promise.resolve();
+        return text ? this.fetchFilterQuery(textVariations, text) : Promise.resolve();
     }
 
     // hack, because we cannot abort old promise
     _fetchFilterVersion = 0;
 
-    fetchFilterQuery(textVariations) {
+    fetchFilterQuery(textVariations, text) {
         const version = ++this._fetchFilterVersion;
         this.api.searchFriends(textVariations).then(users => {
             users = users.map(json => new User(json));
             if (this._fetchFilterVersion == version) {
                 const usersFromServer = this.allUsers.filter(user => users.some(u => u.id == user.id));
-                this.filteredUsers = this.filteredUsers.concat(usersFromServer);
-                this.filteredUsers = uniqueArray(this.filteredUsers);
-                this.eventBus.fire('filteredUsers', this.filteredUsers);
+                this._prevFetchedUsers = usersFromServer;
+                this._prevFetchedQuery = text;
+                this._setFilteredUsers(this._localFilteredUsers.concat(usersFromServer));
                 this.eventBus.fire('loaded', this.filteredUsers);
             }
         })
+    }
+
+    _setFilteredUsers(users) {
+        this.filteredUsers = users.slice();
+        this.filteredUsers = uniqueArray(this.filteredUsers);
+        this.eventBus.fire('filteredUsers', this.filteredUsers);
     }
 
     fetchUsers() {
@@ -66,6 +82,9 @@ export class DialogViewModel {
     }
 
     filterUsers(textVariations) {
+        if (textVariations.length == 0) {
+            return this.allUsers.slice();
+        }
         return this.allUsers.filter(user =>
             user.hasText(textVariations));
     }
