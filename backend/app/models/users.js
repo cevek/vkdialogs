@@ -10,7 +10,7 @@ module.exports = class Users {
     }
 
     *findByQuery(query) {
-        const queries = (Array.isArray(query) ? query : [query]).slice(0, 10);
+        const queries = (Array.isArray(query) ? query : [query]).slice(0, 10).map(q => q.substr(0, 30));
         const searchCols = ['first_name', 'last_name', 'nickname'];
         const likeSql = [];
         const likeValues = [];
