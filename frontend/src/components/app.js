@@ -2,10 +2,9 @@ import {Component} from "../lib/dom";
 import {d} from "../lib/dom";
 import {DialogViewModel} from "../models/dialog";
 import {DialogView} from "./dialog";
+import './app.less';
 
 export class App extends Component {
-    loaderNode;
-
     constructor(api) {
         super();
         this.api = api;
@@ -13,16 +12,13 @@ export class App extends Component {
 
     render() {
         const model = new DialogViewModel(this.api);
+        document.body.classList.add('app__loader');
         model.fetchUsers().then(()=> {
-
             const dialogView = new DialogView(model);
             this.rootNode.appendChild(d(dialogView));
-
-            this.loaderNode.classList.add('hidden');
+            document.body.classList.remove('app__loader');
         });
 
-        return d('div.app', null,
-            this.loaderNode = d('div', null, 'Загрузка...')
-        )
+        return d('div.app', null)
     }
 }
