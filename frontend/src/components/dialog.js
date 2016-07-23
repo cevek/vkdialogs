@@ -50,9 +50,9 @@ export class DialogView extends Component {
     onSelectedUsersChange = selectedUsers => {
         if (this.mount) {
             if (selectedUsers.length > 1) {
-                this.actionsNode.classList.remove('hidden');
+                this.actionsNode.classList.remove('dialog__actions--hidden');
             } else {
-                this.actionsNode.classList.add('hidden');
+                this.actionsNode.classList.add('dialog__actions--hidden');
             }
             this.filterInputNode.placeholder = selectedUsers.length == 0 ? this.placeholder : '';
             this.selectedUsersCmp.update(selectedUsers);
@@ -146,7 +146,7 @@ export class DialogView extends Component {
                     this.filterClearNode = d('span.clear.dialog__clear.hidden', {events: {click: this.onFilterClear}})
                 ),
                 this.friendListCmp,
-                this.actionsNode = d('div.dialog__actions.hidden', null,
+                this.actionsNode = d('div.dialog__actions.dialog__actions--hidden', null,
                     d('input.dialog__name', {placeholder: 'Введите название беседы'}),
                     this.saveButtonNode = d('button.btn.dialog__submit', {events: {click: this.onSave}}, 'Создать беседу'),
                 )

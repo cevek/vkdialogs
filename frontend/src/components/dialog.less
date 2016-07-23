@@ -1,5 +1,7 @@
 @import "../styles/variables";
 
+@actionsHeight: 70px;
+
 .dialog {
   background: white;
   width: 550px;
@@ -10,6 +12,8 @@
   border: 1px solid @borderColor;
   border-bottom: 0;
   border-top: 0;
+  position: relative;
+  overflow: hidden;
 
   &__header {
     border-bottom: 1px solid @borderColor;
@@ -85,11 +89,22 @@
   &__friend-list {
     overflow-y: scroll;
     flex: 1;
+    &--with-actions{
+      //padding-bottom: @actionsHeight;
+    }
   }
 
   &__actions {
-    padding: 20px;
+    background: @bg;
+    padding: 19px 20px;
+    height: @actionsHeight;
+    box-sizing: border-box;
     border-top: solid 1px @borderColor;
+    transition: margin .2s ease;
+
+    &--hidden {
+      margin-bottom: -@actionsHeight;
+    }
   }
 
   &__submit {
