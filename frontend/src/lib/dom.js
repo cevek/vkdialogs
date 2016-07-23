@@ -109,7 +109,7 @@ export class List extends Component {
      * @return {{key: string, node: Node, view: Component, item: T}[]}
      */
     getItems() {
-        return this.items;
+        return this.items.slice();
     }
 
     _makeItems(sourceArray, keyMap) {
