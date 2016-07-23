@@ -5,7 +5,7 @@
 
 Использованные технологии: ES6, Babel, Webpack, LESS, Autoprefixer.
 
-[Демо](https://cevek.github.io/vkdialogs/)
+[Демо](http://95.85.11.41:7500/)
 
 
 ## Установка
