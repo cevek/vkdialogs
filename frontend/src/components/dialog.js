@@ -7,7 +7,6 @@ export class DialogView extends Component {
     friendListCmp;
     filterInputNode;
     filterClearNode;
-    filterLoaderNode;
     actionsNode;
     saveButtonNode;
 
@@ -18,11 +17,14 @@ export class DialogView extends Component {
         this.model = model;
         this.model.eventBus.subscribe('filteredUsers', this.onFilteredUsersChange);
         this.model.eventBus.subscribe('selectedUsers', this.onSelectedUsersChange);
+        this.model.eventBus.subscribe('loaded', this.onLoaded);
     }
 
     onDestroy() {
         this.model.eventBus.unsubscribe('filteredUsers', this.onFilteredUsersChange);
         this.model.eventBus.unsubscribe('selectedUsers', this.onSelectedUsersChange);
+        this.model.eventBus.unsubscribe('loaded', this.onLoaded);
+
     }
 
     onFilteredUsersChange = filteredUsers => {
@@ -44,7 +46,16 @@ export class DialogView extends Component {
             this.friendListCmp.getItems().forEach(item => item.view.update());
             this.filterInputNode.focus();
             this.onFilterClear();
+            if (selectedUsers.length > 0) {
+                this.filterClearNode.classList.add('dialog__hidden');
+            } else {
+                this.filterClearNode.classList.remove('dialog__hidden');
+            }
         }
+    };
+
+    onLoaded = () => {
+        this.filterClearNode.classList.remove('dialog__spinner');
     };
 
     onClose = () => {
@@ -53,14 +64,13 @@ export class DialogView extends Component {
 
     onFilterInput = (event) => {
         const text = event.target.value;
-        this.filterClearNode.classList.add('hidden');
-        this.filterLoaderNode.classList.remove('hidden');
-        this.model.setFilterText(text).then(()=> {
-            this.filterLoaderNode.classList.add('hidden');
-            if (event.target.value) {
-                this.filterClearNode.classList.remove('hidden');
-            }
-        })
+        if (text) {
+            this.filterClearNode.classList.remove('hidden');
+            this.filterClearNode.classList.add('dialog__spinner');
+        } else {
+            this.filterClearNode.classList.add('hidden');
+        }
+        this.model.setFilterText(text);
     };
 
     onFilterClear = () => {
@@ -109,8 +119,7 @@ export class DialogView extends Component {
                         fullsize: true,
                         events: {input: this.onFilterInput}
                     }),
-                    this.filterLoaderNode = d('span.dialog__spinner.dialog__filter-icon.hidden', null),
-                    this.filterClearNode = d('span.clear.dialog__clear.dialog__filter-icon.hidden', {events: {click: this.onFilterClear}})
+                    this.filterClearNode = d('span.clear.dialog__clear.hidden', {events: {click: this.onFilterClear}})
                 ),
                 this.friendListCmp,
                 this.actionsNode = d('div.dialog__actions.hidden', null,

@@ -11,7 +11,6 @@
   border-bottom: 0;
   border-top: 0;
 
-
   &__header {
     border-bottom: 1px solid @borderColor;
     padding: 16px 15px;
@@ -30,19 +29,8 @@
   }
 
   &__filter {
-    padding: 0 20px;
+    padding: 0 0 0 20px;
     border-bottom: 1px solid @borderColor;
-  }
-
-  &__filter-icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    vertical-align: middle;
-    text-align: center;
-    float: right;
-    margin-top: 12px;
   }
 
   &__selected-users {
@@ -60,15 +48,27 @@
     }
   }
 
+  &__hidden {
+    display: none !important;
+  }
+
   &__clear {
-    margin-top: 10px;
     font-size: 19px;
     color: @xColor;
     cursor: pointer;
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    line-height: 20px;
+    vertical-align: middle;
+    text-align: center;
+    float: right;
+    background-size: 10px 10px;
   }
 
   &__spinner {
-    background: url(../images/spinner.gif) no-repeat center;
+    background-image: url(../images/spinner.gif);
+    background-size: 15px 15px;
   }
 
   &__friend-list {
@@ -100,7 +100,6 @@
   margin: 0 20px;
   border-bottom: 1px solid @borderColor;
   user-select: none;
-
 
   &:hover {
     background-color: @lightBg;
@@ -163,7 +162,7 @@
     width: 30px;
     height: 28px;
     background-size: 10px 10px;
-    &:active{
+    &:active {
       position: relative;
       top: 1px;
     }

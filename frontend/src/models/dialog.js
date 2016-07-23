@@ -26,15 +26,16 @@ export class DialogViewModel {
 
     fetchFilterQuery() {
         const version = ++this._fetchFilterVersion;
-        return this.api.searchFriends(this.filterText).then(users => {
+        this.api.searchFriends(this.filterText).then(users => {
             users = users.map(json => new User(json));
             if (this._fetchFilterVersion == version) {
                 const usersFromServer = this.allUsers.filter(user => users.some(u => u.id == user.id));
                 this.filteredUsers = this.filteredUsers.concat(usersFromServer);
                 this.filteredUsers = uniqueArray(this.filteredUsers);
                 this.eventBus.fire('filteredUsers', this.filteredUsers);
+                this.eventBus.fire('loaded', this.filteredUsers);
             }
-        }).catch(err=>console.error(err)); // too many requests error
+        })
     }
 
     fetchUsers() {
