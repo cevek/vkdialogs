@@ -5,6 +5,7 @@ export class DialogView extends Component {
     model;
     selectedUsersCmp;
     friendListCmp;
+    filterNode;
     filterInputNode;
     filterClearNode;
     actionsNode;
@@ -79,6 +80,17 @@ export class DialogView extends Component {
         this.filterClearNode.classList.add('hidden');
     };
 
+    isShadowVisible = false;
+    onScroll = (event) => {
+        if (event.target.scrollTop == 0) {
+            this.filterNode.classList.remove('shadow');
+            this.isShadowVisible = false;
+        } else if (!this.isShadowVisible) {
+            this.filterNode.classList.add('shadow');
+            this.isShadowVisible = true;
+        }
+    };
+
     onSave = () => {
         this.saveButtonNode.setAttribute('disabled', '');
         this.saveButtonNode.classList.add('saving');
@@ -90,7 +102,7 @@ export class DialogView extends Component {
 
     render() {
         this.friendListCmp = new List({
-            props: {class: 'dialog__friend-list'},
+            props: {class: 'dialog__friend-list', events: {scroll: this.onScroll}},
             array: this.model.filteredUsers,
             key: user => user.id,
             view: user => new DialogFriend(this.model, user)
@@ -109,7 +121,7 @@ export class DialogView extends Component {
                     'Создание беседы',
                     d('span.clear.dialog__close', {title: "Закрыть", events: {click: this.onClose}})
                 ),
-                d('div.dialog__filter', null,
+                this.filterNode = d('div.dialog__filter', null,
                     this.selectedUsersCmp,
                     this.filterInputNode = d('input.dialog__input', {
                         type: 'text',
