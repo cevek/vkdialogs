@@ -12,6 +12,7 @@
   "dependencies": {
     "koa": "^1.2.1",
     "koa-controller": "^1.1.0",
+    "koa-static": "^2.0.0",
     "mysql": "^2.11.1"
   }
 }
