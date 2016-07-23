@@ -22,6 +22,7 @@
     user-select: none;
     font-weight: 500;
     background: @lightBg;
+    font-weight: 500;
   }
 
   &__close {
@@ -33,9 +34,10 @@
   }
 
   &__filter {
-    padding: 8px 0 8px 20px;
+    padding: 0 0 0 20px;
     border-bottom: 1px solid @borderColor;
     position: relative;
+
     &:after {
       transition: 0.3s opacity;
       opacity: 0;
@@ -43,10 +45,11 @@
       content: "";
       width: 100%;
       height: 3px;
-      background: rgba(0, 0, 0, 0.06);
+      background: rgba(0, 0, 0, 0.03);
       left: 0;
       bottom: -3px;
     }
+
     &.shadow:after {
       opacity: 1;
     }
@@ -59,7 +62,9 @@
   &__input {
     border: none;
     width: 480px;
-    padding: 8px 0;
+    padding: 17px 0;
+    height: 50px;
+    box-sizing: border-box;
     outline: none;
   }
 
@@ -72,8 +77,8 @@
     color: @xColor;
     cursor: pointer;
     display: inline-block;
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 48px;
     line-height: 20px;
     vertical-align: middle;
     text-align: center;
@@ -89,9 +94,6 @@
   &__friend-list {
     overflow-y: scroll;
     flex: 1;
-    &--with-actions{
-      //padding-bottom: @actionsHeight;
-    }
   }
 
   &__actions {
@@ -169,7 +171,7 @@
 
 .user-item {
   display: inline-block;
-  margin: 3px 5px 1px 0;
+  margin: 11px 5px 1px 0;
   vertical-align: top;
   background-color: @tokenBgColor;
   border-radius: 2px;
