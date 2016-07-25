@@ -9,57 +9,46 @@ export function uniqueArray(array) {
 const translitMap = {
     lat1: ['yo', 'zh', 'kh', 'ts', 'ch', 'sch', 'shch', 'sh', 'eh', 'yu', 'ya', 'YO', 'ZH', 'KH', 'TS', 'CH', 'SCH', 'SHCH', 'SH', 'EH', 'YU', 'YA', "'"],
     cyr1: ['ё', 'ж', 'х', 'ц', 'ч', 'щ', 'щ', 'ш', 'э', 'ю', 'я', 'Ё', 'Ж', 'Х', 'Ц', 'Ч', 'Щ', 'Щ', 'Ш', 'Э', 'Ю', 'Я', 'ь'],
-    lat2: 'abvgdezijklmnoprstufhcyABVGDEZIJKLMNOPRSTUFHCYёЁ',
-    cyr2: 'абвгдезийклмнопрстуфхцыАБВГДЕЗИЙКЛМНОПРСТУФХЦЫеЕ',
+    lat2: 'eEabvgdezijklmnoprstufhcyABVGDEZIJKLMNOPRSTUFHCY'.split(''),
+    cyr2: 'ёЁабвгдезийклмнопрстуфхцыАБВГДЕЗИЙКЛМНОПРСТУФХЦЫ'.split(''),
 
-    cyrKeys: "йцукенгшщзхъфывапролджэячсмитьбю.ё",
-    latKeys: "qwertyuiop[]asdfghjkl;'zxcvbnm,./`",
+    cyrKeys: "йцукенгшщзхъфывапролджэячсмитьбю.ёЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЯЧСМИТЬБЮ.ЁЭ".split(''),
+    latKeys: "qwertyuiop[]asdfghjkl;'zxcvbnm,./`QWERTYUIOP{}ASDFGHJKL:ZXCVBNM<>&|\"".split(''),
 };
 
-function translit(text, from, to) {
-    for (let i = 0; i < from.length; i++) {
-        text = text.split(from[i]).join(to[i]);
+export const translit = {
+    latCyr: translitFunctionFactory([...translitMap.lat1, ...translitMap.lat2], [...translitMap.cyr1, ...translitMap.cyr2]),
+    cyrLat: translitFunctionFactory([...translitMap.cyr1, ...translitMap.cyr2], [...translitMap.lat1, ...translitMap.lat2]),
+    cyrLatKeys: translitFunctionFactory(translitMap.cyrKeys, translitMap.latKeys),
+    latCyrKeys: translitFunctionFactory(translitMap.latKeys, translitMap.cyrKeys),
+};
+
+function translitFunctionFactory(a, b) {
+    const regExp = new RegExp(`(${a.map(t => t.replace(/([^\wа-яё])/ig, '\\$1')).join('|')})`, 'g');
+
+    const map = {};
+    let hasComplexReplace = false;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i].length > 1) {
+            hasComplexReplace = true;
+        }
+        map[a[i]] = b[i];
     }
-    return text;
-}
 
-/**
- * Translit privet => привет
- */
-export function translitToCyr(text) {
-    text = translit(text, translitMap.lat1, translitMap.cyr1);
-    text = translit(text, translitMap.lat2, translitMap.cyr2);
-    return text;
-}
-/**
- * Translit привет => privet
- */
-export function translitToLat(text) {
-    text = translit(text, translitMap.cyr1, translitMap.lat1);
-    text = translit(text, translitMap.cyr2, translitMap.lat2);
-    return text;
-}
+    if (hasComplexReplace) {
+        return (text) => text.replace(regExp, replace);
+    }
 
-/**
- * Translit ghbdtn => привет
- */
-export function traslitKeyboardToCyr(text) {
-    return translit(text, translitMap.latKeys, translitMap.cyrKeys);
-}
+    function replace(m, m1) {
+        return map[m1] || m1;
+    }
 
-/**
- * Translit зкшмуе => privet
- */
-export function traslitKeyboardToLat(text) {
-    return translit(text, translitMap.cyrKeys, translitMap.latKeys);
-}
-
-/**
- * Check that sub text contains in source with different types of enter
- * @param sourceVariations {string[]}
- * @param textVariations {string[]}
- * @return {boolean}
- */
-export function hasText(sourceVariations, textVariations) {
-    return sourceVariations.some(source => textVariations.some(sub => source.indexOf(sub) > -1));
+    return (text) => {
+        let s = '';
+        for (let i = 0; i < text.length; i++) {
+            const sym = text[i];
+            s += map[sym] || sym;
+        }
+        return s;
+    }
 }

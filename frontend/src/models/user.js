@@ -1,4 +1,4 @@
-import {hasText, translitToCyr, translitToLat} from "../lib/utils";
+import {translit} from "../lib/utils";
 
 export class User {
     id;
@@ -11,11 +11,5 @@ export class User {
         this.lastName = json.last_name;
         this.photo = json.photo;
         this.fullName = this.firstName + ' ' + this.lastName;
-        const fullNameLower = this.fullName.toLocaleLowerCase();
-        this.searchVariations = [
-            fullNameLower,
-            translitToCyr(fullNameLower),
-            translitToLat(fullNameLower),
-        ].join(' ');
     }
 }

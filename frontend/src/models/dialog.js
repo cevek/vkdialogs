@@ -1,6 +1,6 @@
 import {EventEmitter} from "../lib/event-emitter";
 import {User} from "./user";
-import {uniqueArray, translitToLat, translitToCyr, traslitKeyboardToCyr, traslitKeyboardToLat} from "../lib/utils";
+import {uniqueArray, translit} from "../lib/utils";
 
 export class DialogViewModel {
     eventBus = new EventEmitter();
@@ -23,12 +23,11 @@ export class DialogViewModel {
         const lowerText = text.replace(/[^\wа-яё ]/ig, '').toLocaleLowerCase();
         const textVariations = uniqueArray([
             lowerText,
-            translitToLat(lowerText),
-            translitToCyr(lowerText),
-            traslitKeyboardToCyr(lowerText),
-            traslitKeyboardToLat(lowerText),
-            translitToLat(traslitKeyboardToCyr(lowerText)),
-            translitToCyr(traslitKeyboardToLat(lowerText)),
+            translit.cyrLat(lowerText),
+            translit.latCyrKeys(lowerText),
+            translit.cyrLatKeys(lowerText),
+            translit.cyrLat(translit.latCyrKeys(lowerText)),
+            translit.latCyr(translit.cyrLatKeys(lowerText)),
         ]);
         this.filteredUsers = [];
         let users = this._localFilteredUsers = this.filterUsers(textVariations);
@@ -85,8 +84,9 @@ export class DialogViewModel {
         if (textVariations.length == 0) {
             return this.allUsers.slice();
         }
-        const regExp = new RegExp(`(${textVariations.join('|')})`);
-        return this.allUsers.filter(user => regExp.test(user.searchVariations));
+        const regExp = new RegExp(`(^|\\b)(${textVariations.join('|')})`, 'i');
+
+        return this.allUsers.filter(user => regExp.test(user.fullName));
     }
 
     userIsSelected(user) {
