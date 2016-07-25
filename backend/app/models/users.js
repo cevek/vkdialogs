@@ -5,22 +5,17 @@ module.exports = class Users {
         this.app = app;
     }
 
+    //todo: make unlimit
     *findAll() {
-        return yield this.app.models.query('SELECT id, first_name, last_name, photo FROM users');
+        return yield this.app.models.query('SELECT id, first_name, last_name, photo FROM users LIMIT 1000');
     }
 
     *findByQuery(query) {
-        const queries = (Array.isArray(query) ? query : [query]).slice(0, 10).map(q => q.substr(0, 30));
-        const searchCols = ['first_name', 'last_name', 'nickname'];
-        const likeSql = [];
-        const likeValues = [];
-        for (let i = 0; i < searchCols.length; i++) {
-            var col = searchCols[i];
-            for (let j = 0; j < queries.length; j++) {
-                likeSql.push(`${col} LIKE ?`);
-                likeValues.push(`%${queries[j]}%`);
-            }
-        }
-        return yield this.app.models.query(`SELECT id, first_name, last_name, photo FROM users WHERE ${likeSql.join(' OR ')}`, likeValues);
+        const value = (Array.isArray(query) ? query : [query]).slice(0, 10)
+            .map(q =>
+                q.substr(0, 30).replace(/^[\wа-яё ]]/ig, '') + '*').join(' ');
+
+        return yield this.app.models.query(`SELECT id, first_name, last_name, photo FROM users WHERE 
+                MATCH(first_name, last_name, nickname) AGAINST (? IN BOOLEAN MODE) LIMIT 100`, value);
     }
 };
