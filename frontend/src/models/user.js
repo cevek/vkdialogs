@@ -16,10 +16,6 @@ export class User {
             fullNameLower,
             translitToCyr(fullNameLower),
             translitToLat(fullNameLower),
-        ];
-    }
-
-    hasText(str) {
-        return hasText(this.searchVariations, str);
+        ].join(' ');
     }
 }

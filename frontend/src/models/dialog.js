@@ -20,7 +20,7 @@ export class DialogViewModel {
 
     setFilterText(text) {
         this.filterText = text;
-        const lowerText = text.toLocaleLowerCase();
+        const lowerText = text.replace(/[^\wа-яё ]/ig, '').toLocaleLowerCase();
         const textVariations = uniqueArray([
             lowerText,
             translitToLat(lowerText),
@@ -85,8 +85,8 @@ export class DialogViewModel {
         if (textVariations.length == 0) {
             return this.allUsers.slice();
         }
-        return this.allUsers.filter(user =>
-            user.hasText(textVariations));
+        const regExp = new RegExp(`(${textVariations.join('|')})`);
+        return this.allUsers.filter(user => regExp.test(user.searchVariations));
     }
 
     userIsSelected(user) {
