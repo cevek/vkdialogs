@@ -11,5 +11,6 @@ export class User {
         this.lastName = json.last_name;
         this.photo = json.photo;
         this.fullName = this.firstName + ' ' + this.lastName;
+        this.searchStr = (' ' + this.firstName + ' ' + this.lastName).toLowerCase();
     }
 }

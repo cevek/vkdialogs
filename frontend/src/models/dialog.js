@@ -7,6 +7,7 @@ export class DialogViewModel {
 
     filterText;
     allUsers = [];
+    usersMap = {};
     filteredUsers = [];
     selectedUsers = [];
 
@@ -20,7 +21,7 @@ export class DialogViewModel {
 
     setFilterText(text) {
         this.filterText = text;
-        const lowerText = text.replace(/[^\wа-яё ]/ig, '').toLocaleLowerCase();
+        const lowerText = text.toLocaleLowerCase();
         const textVariations = uniqueArray([
             lowerText,
             translit.cyrLat(lowerText),
@@ -36,7 +37,6 @@ export class DialogViewModel {
             users = users.concat(this._prevFetchedUsers);
         }
         this._setFilteredUsers(users);
-        this.eventBus.fire('filteredUsers', this.filteredUsers);
         return text ? this.fetchFilterQuery(textVariations, text) : Promise.resolve();
     }
 
@@ -58,16 +58,29 @@ export class DialogViewModel {
     }
 
     _setFilteredUsers(users) {
-        this.filteredUsers = users.slice();
-        this.filteredUsers = uniqueArray(this.filteredUsers);
+        const newUsers = [];
+        const usedUserIds = {};
+        for (var i = 0; i < users.length; i++) {
+            var user = users[i];
+            if (!usedUserIds[user.id]) {
+                newUsers.push(user);
+                usedUserIds[user.id] = true;
+            }
+        }
+        this.filteredUsers = newUsers;
         this.eventBus.fire('filteredUsers', this.filteredUsers);
     }
 
     fetchUsers() {
         return this.api.getAllFriends().then(usersJson => {
-            this.allUsers = usersJson.map(json => new User(json));
+            this.allUsers = usersJson.map(json => {
+                const user = new User(json);
+                this.usersMap[user.id] = user;
+                return user;
+            });
             this.allUsers.sort((a, b) => a.fullName < b.fullName ? -1 : 1);
             this.filteredUsers = this.allUsers.slice();
+
         });
     }
 
@@ -84,9 +97,8 @@ export class DialogViewModel {
         if (textVariations.length == 0) {
             return this.allUsers.slice();
         }
-        const regExp = new RegExp(`(^|\\b)(${textVariations.join('|')})`, 'i');
-
-        return this.allUsers.filter(user => regExp.test(user.fullName));
+        const regExp = new RegExp(` (${textVariations.map(v => v.replace(/([^\wа-яё ])/ig, '\\$1')).join('|')})`);
+        return this.allUsers.filter(user => regExp.test(user.searchStr));
     }
 
     userIsSelected(user) {
