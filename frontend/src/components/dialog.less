@@ -124,22 +124,29 @@
 
 .friend {
   display: block;
-  line-height: 34px;
-  margin: 0 20px;
-  border-bottom: 1px solid @borderColor;
   user-select: none;
 
-  &:hover {
-    background-color: @lightBg;
-    margin: -1px 0 0 0;
-    border-top: 1px solid @borderColor;
-    padding: 0 20px;
-  }
 
   &__inner {
-    padding: 10px 0;
-    height: 34px;
+    padding: 7px 0;
+    height: 51px;
+    //line-height: 50px;
     overflow: hidden;
+
+    box-sizing: border-box;
+    margin: -1px 20px 0 20px;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid @borderColor;
+
+    &:hover {
+      background-color: @lightBg;
+      margin-left: 0;
+      margin-right: 0;
+      border-top-color: @borderColor;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
   }
 
   &:last-child {
@@ -158,6 +165,7 @@
   &__name {
     margin: 0 10px;
     font-weight: 500;
+    line-height: 34px;
     width: 300px;
     display: inline-block;
   }

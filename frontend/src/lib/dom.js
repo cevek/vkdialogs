@@ -259,7 +259,7 @@ export class InfinityList extends Component {
             }
         }
         this.spaceNode.style.height = `${array.length * this.params.height}px`;
-        this._updateViews();
+        this.updateViews();
     }
 
     _createViews() {
@@ -271,7 +271,7 @@ export class InfinityList extends Component {
         this.freeViews = this.views.slice();
     }
 
-    _updateViews = () => {
+    updateViews = (forceUpdate) => {
         const viewportTop = this.rootNode.scrollTop;
         const rect = this.rootNode.getBoundingClientRect();
         const viewportBottom = viewportTop + rect.height;
@@ -298,6 +298,8 @@ export class InfinityList extends Component {
                 }
                 vm.view = view;
                 vm.view.update(vm.value);
+            } else if (forceUpdate) {
+                vm.view.update(vm.value);
             }
             if (vm.view.rootNode.$hidden) {
                 vm.view.rootNode.classList.remove('hidden');
@@ -319,7 +321,7 @@ export class InfinityList extends Component {
     };
 
     _onScroll = () => {
-        this._updateViews();
+        this.updateViews();
     };
 
 
@@ -332,21 +334,23 @@ export class InfinityList extends Component {
     }
 
     onDestroy(){
-        window.removeEventListener('resize', this._updateViews);
+        window.removeEventListener('resize', this.updateViews);
     }
 
     render() {
         this._createViews();
-        const result = d('div.infinity-list', {...this.params.props, events: {scroll: this._onScroll}},
+        const result = d('div.infinity-list', this.params.props,
             this.spaceNode = d('div.infinity-list__space', {style: {height: `${this.viewModels.length * 50}px`}}),
             ...this.views);
+
+        result.addEventListener('scroll', this._onScroll);
 
         this._initViews();
 
         // todo: hack, need componentDidMount
         setTimeout(()=>{
-            this._updateViews();
-            window.addEventListener('resize', this._updateViews);
+            this.updateViews();
+            window.addEventListener('resize', this.updateViews);
         });
         return result;
     }

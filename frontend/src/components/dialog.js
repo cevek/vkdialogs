@@ -1,4 +1,4 @@
-import {Component, List, d} from '../lib/dom';
+import {Component, List, InfinityList, d} from '../lib/dom';
 import './dialog.less';
 
 export class DialogView extends Component {
@@ -30,7 +30,7 @@ export class DialogView extends Component {
 
     onFilteredUsersChange = filteredUsers => {
         if (this.mount) {
-            this.friendListCmp.updateVisible(filteredUsers);
+            this.friendListCmp.filterResults(filteredUsers);
         }
     };
 
@@ -61,7 +61,7 @@ export class DialogView extends Component {
                 this.actionsNode.classList.add('dialog__actions--hidden');
             }
             this.filterInputNode.placeholder = selectedUsers.length == 0 ? this.placeholder : '';
-            this.friendListCmp.getItems().forEach(item => item.view.update());
+            this.friendListCmp.updateViews(true);
             this.filterInputNode.focus();
             this.onFilterClear();
 
@@ -122,11 +122,12 @@ export class DialogView extends Component {
     };
 
     render() {
-        this.friendListCmp = new List({
+        this.friendListCmp = new InfinityList({
             props: {class: 'dialog__friend-list', events: {scroll: this.onScroll}},
-            array: this.model.filteredUsers,
+            height: 50,
+            array: this.model.allUsers,
             key: user => user.id,
-            view: user => new DialogFriend(this.model, user)
+            view: user => new DialogFriend(this.model)
         });
 
         this.selectedUsersCmp = new List({
@@ -164,12 +165,13 @@ export class DialogView extends Component {
 }
 
 class DialogFriend extends Component {
+    photoNode;
+    nameNode;
     checkboxNode;
 
-    constructor(model, user) {
+    constructor(model) {
         super();
         this.model = model;
-        this.user = user;
     }
 
     onToggleSelect = (event) => {
@@ -177,17 +179,20 @@ class DialogFriend extends Component {
         event.preventDefault();
     };
 
-    update() {
-        this.checkboxNode.setAttribute('checked', this.model.userIsSelected(this.user));
+    update(user) {
+        this.user = user;
+        this.nameNode.textContent = user.fullName;
+        this.photoNode.style.backgroundImage = `url(${user.photo})`;
+        this.checkboxNode.setAttribute('checked', this.model.userIsSelected(user));
     }
 
     render() {
         return (
             d('a.friend', {href: 'http://vk.com', events: {click: this.onToggleSelect}},
                 d('div.friend__inner', null,
-                    d('div.friend__photo', {style: {backgroundImage: `url(${this.user.photo})`}}),
-                    d('div.friend__name', null, this.user.fullName),
-                    this.checkboxNode = d('div.checkbox.friend__checkbox', {checked: this.model.userIsSelected(this.user)}),
+                    this.photoNode = d('div.friend__photo', null),
+                    this.nameNode = d('div.friend__name', null, ''),
+                    this.checkboxNode = d('div.checkbox.friend__checkbox', {checked: false}),
                 )
             )
         );
