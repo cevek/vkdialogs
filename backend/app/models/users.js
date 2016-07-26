@@ -12,7 +12,7 @@ module.exports = class Users {
     *findByQuery(query) {
         const value = (Array.isArray(query) ? query : [query]).slice(0, 10)
             .map(q => {
-                const result = q.substr(0, 30).replace(/[^\wа-яё ._\-]/ig, '').trim();
+                const result = q.substr(0, 30).replace(/[^\wа-яё._\-]/ig, '').trim();
                 return result ? result + '*' : '';
             }).join(' ').trim();
 
