@@ -272,9 +272,9 @@ export class InfinityList extends Component {
     }
 
     updateViews = (forceUpdate) => {
-        const viewportTop = this.rootNode.scrollTop;
+        const viewportTop = this.rootNode.scrollTop - 50;
         const rect = this.rootNode.getBoundingClientRect();
-        const viewportBottom = viewportTop + rect.height;
+        const viewportBottom = viewportTop + rect.height + 100;
         const {height} = this.params;
         const {freeViews} = this;
         const viewportVMs = [];
