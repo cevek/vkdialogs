@@ -68,7 +68,6 @@ a {
   }
 }
 
-
 .checkbox {
   display: inline-block;
   background: url(../images/checkbox.png) no-repeat 0 -26px;
@@ -90,5 +89,18 @@ a {
   transition: opacity 0.2s ease;
   &:hover {
     opacity: 1;
+  }
+}
+
+.infinity-list {
+  position: relative;
+
+  &__item {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    transform: translateY(-1000px);
+    will-change: transform;
   }
 }

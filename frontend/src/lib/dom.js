@@ -1,8 +1,8 @@
 /**
  * Create dom element
  * @param tag {string | Component}
- * @param attrs {Object}
- * @param children {string | Node | Component[]}
+ * @param attrs? {Object}
+ * @param children? {string | Node | Component[]}
  * @return {Element}
  */
 export function d(tag, attrs, ...children) {
@@ -15,12 +15,21 @@ export function d(tag, attrs, ...children) {
         if (!attrs) {
             attrs = {};
         }
-        attrs.class = tagSplit.join(' ');
+        const cls = tagSplit.join(' ');
+        if (attrs.class) {
+            attrs.class = cls + ' ' + attrs.class;
+        } else {
+            attrs.class = cls;
+        }
     }
     const node = document.createElement(tag);
     prepareAttrs(attrs, node);
     for (let i = 0; i < children.length; i++) {
-        node.appendChild(prepareDom(children[i]));
+        var child = children[i];
+        node.appendChild(prepareDom(child));
+        if (child instanceof Component && child.onDidMount) {
+            child.onDidMount();
+        }
     }
     return node;
 }
@@ -199,5 +208,146 @@ export class List extends Component {
             item.view = view;
             return node;
         }))
+    }
+}
+
+
+export class InfinityList extends Component {
+    freeViews = [];
+    viewModels;
+    keyMap = {};
+    spaceNode;
+
+    constructor(params) {
+        super();
+        this.params = params;
+        this._createViewModels();
+    }
+
+    _createViewModels() {
+        this.viewModels = new Array(this.params.array);
+        for (let i = 0; i < this.params.array.length; i++) {
+            const value = this.params.array[i];
+            const key = this.params.key(value, i);
+            const vm = {
+                top: i * this.params.height,
+                hidden: false,
+                view: null,
+                key,
+                value
+            };
+            this.keyMap[key] = vm;
+            this.viewModels[i] = vm;
+        }
+    }
+
+    filterResults(array) {
+        const usedKeys = {};
+        for (let i = 0; i < array.length; i++) {
+            const key = this.params.key(array[i], i);
+            const vm = this.keyMap[key];
+            if (vm) {
+                vm.hidden = false;
+                vm.top = i * this.params.height;
+                usedKeys[key] = true;
+            }
+        }
+        for (let i = 0; i < this.viewModels.length; i++) {
+            const vm = this.viewModels[i];
+            if (!usedKeys[vm.key]) {
+                vm.hidden = true;
+            }
+        }
+        this.spaceNode.style.height = `${array.length * this.params.height}px`;
+        this._updateViews();
+    }
+
+    _createViews() {
+        this.views = new Array(30);
+        for (let i = 0; i < this.views.length; i++) {
+            const view = this.params.view();
+            this.views[i] = view;
+        }
+        this.freeViews = this.views.slice();
+    }
+
+    _updateViews = () => {
+        const viewportTop = this.rootNode.scrollTop;
+        const rect = this.rootNode.getBoundingClientRect();
+        const viewportBottom = viewportTop + rect.height;
+        const {height} = this.params;
+        const {freeViews} = this;
+        const viewportVMs = [];
+        for (let i = 0; i < this.viewModels.length; i++) {
+            const vm = this.viewModels[i];
+            if (vm.top + height >= viewportTop && vm.top < viewportBottom && !vm.hidden) {
+                viewportVMs.push(vm);
+            } else {
+                if (vm.view) {
+                    freeViews.push(vm.view);
+                    vm.view = null;
+                }
+            }
+        }
+        for (let i = 0; i < viewportVMs.length; i++) {
+            const vm = viewportVMs[i];
+            if (!vm.view) {
+                const view = freeViews.pop();
+                if (!view) {
+                    throw new Error('views ended');
+                }
+                vm.view = view;
+                vm.view.update(vm.value);
+            }
+            if (vm.view.rootNode.$hidden) {
+                vm.view.rootNode.classList.remove('hidden');
+                vm.view.rootNode.$hidden = false;
+            }
+            if (vm.view.rootNode.prevTop !== vm.top) {
+                vm.view.rootNode.style.transform = `translateY(${vm.top}px)`;
+                vm.view.rootNode.prevTop = vm.top;
+            }
+        }
+        for (let i = 0; i < this.freeViews.length; i++) {
+            const view = this.freeViews[i];
+            if (!view.rootNode.$hidden) {
+                view.rootNode.classList.add('hidden');
+                view.rootNode.$hidden = true;
+            }
+        }
+        this.freeViews = freeViews;
+    };
+
+    _onScroll = () => {
+        this._updateViews();
+    };
+
+
+    _initViews() {
+        const max = Math.min(this.views.length, this.viewModels.length);
+        for (let i = 0; i < max; i++) {
+            const view = this.views[i];
+            view.rootNode.classList.add('infinity-list__item');
+        }
+    }
+
+    onDestroy(){
+        window.removeEventListener('resize', this._updateViews);
+    }
+
+    render() {
+        this._createViews();
+        const result = d('div.infinity-list', {...this.params.props, events: {scroll: this._onScroll}},
+            this.spaceNode = d('div.infinity-list__space', {style: {height: `${this.viewModels.length * 50}px`}}),
+            ...this.views);
+
+        this._initViews();
+
+        // todo: hack, need componentDidMount
+        setTimeout(()=>{
+            this._updateViews();
+            window.addEventListener('resize', this._updateViews);
+        });
+        return result;
     }
 }
