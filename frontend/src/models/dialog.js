@@ -45,10 +45,18 @@ export class DialogViewModel {
 
     fetchFilterQuery(textVariations, text) {
         const version = ++this._fetchFilterVersion;
-        this.api.searchFriends(textVariations).then(users => {
-            users = users.map(json => new User(json));
+        this.api.searchFriends(textVariations).then(userIds => {
             if (this._fetchFilterVersion == version) {
-                const usersFromServer = this.allUsers.filter(user => users.some(u => u.id == user.id));
+                const usersFromServer = new Array(userIds.length);
+                for (let i = 0; i < userIds.length; i++) {
+                    const uid = userIds[i];
+                    const user = this.usersMap[uid];
+                    if (user) {
+                        usersFromServer[i] = user;
+                    } else {
+                        throw new Error('User not found');
+                    }
+                }
                 this._prevFetchedUsers = usersFromServer;
                 this._prevFetchedQuery = text;
                 this._setFilteredUsers(this._localFilteredUsers.concat(usersFromServer));

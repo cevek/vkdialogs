@@ -20,11 +20,6 @@ export class Api {
 
 
     fetch(method, queries) {
-        return new Promise((resolve, reject)=> {
-            setTimeout(()=> {
-                fetch(`/api/${method}/?${this.toUrlSearchQuery(queries)}`).then(response => response.json()).then(resolve, reject);
-            }, 500);
-        });
         return fetch(`/api/${method}/?${this.toUrlSearchQuery(queries)}`).then(response => response.json());
     }
 
