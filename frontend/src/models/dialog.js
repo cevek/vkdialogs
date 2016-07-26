@@ -106,7 +106,14 @@ export class DialogViewModel {
             return this.allUsers.slice();
         }
         const regExp = new RegExp(` (${textVariations.map(v => v.replace(/([^\wа-яё ])/ig, '\\$1')).join('|')})`);
-        return this.allUsers.filter(user => regExp.test(user.searchStr));
+        const users = [];
+        for (let i = 0; i < this.allUsers.length; i++) {
+            const user = this.allUsers[i];
+            if (regExp.test(user.searchStr)) {
+                users.push(user)
+            }
+        }
+        return users;
     }
 
     userIsSelected(user) {
